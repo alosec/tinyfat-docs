@@ -1,19 +1,28 @@
 ---
-title: Beads Issue Tracking
-description: Lightweight issue tracking with dependency support, designed for AI agents.
+title: Todo System (Beads)
+description: An agentic todo system. Your agent owns it, maintains it, works from it.
 ---
 
 import { Aside, Steps, Code } from '@astrojs/starlight/components';
 
-Beads (`bd`) is a Git-native issue tracker that lives in your repository. Issues are stored as files, synced with Git, and designed for AI agent workflows.
+Beads (`bd`) is a Git-native todo system designed for AI agents. Your agent doesn't just read issues — it creates them, tracks dependencies, and maintains the backlog as part of its work.
+
+## The agent's responsibility
+
+Unlike traditional issue trackers where humans manage the backlog, Beads is **owned by your agent**:
+
+- Agent discovers work → creates issues
+- Agent sees blockers → adds dependencies  
+- Agent finishes task → closes issue
+- Agent notices patterns → updates the backlog
+
+The memory bank holds context. Beads holds actionable work. Your agent maintains both.
 
 ## Why Beads?
 
-Traditional issue trackers (GitHub Issues, Linear, Jira) are external services. Beads keeps issues in your repo:
-
-- **Git-native** — Issues sync with your code
+- **Git-native** — Issues live in your repo, sync with code
 - **Dependency-aware** — Track what blocks what
-- **Agent-friendly** — `bd ready` shows unblocked work
+- **Agent-first** — `bd ready` shows unblocked work
 - **Offline-first** — Works without network
 - **Simple** — SQLite database, JSONL export
 

@@ -69,15 +69,14 @@ export default defineConfig({
 							if (window.innerWidth < 800) return;
 							
 							function init() {
-								const sidebar = document.querySelector('.sidebar');
-								if (!sidebar || document.querySelector('.sidebar-toggle')) return;
+								if (document.querySelector('.sidebar-toggle')) return;
 								
 								const toggle = document.createElement('button');
 								toggle.className = 'sidebar-toggle';
 								toggle.setAttribute('aria-label', 'Toggle sidebar');
 								toggle.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>';
 								
-								sidebar.prepend(toggle);
+								document.body.appendChild(toggle);
 								
 								const collapsed = localStorage.getItem('sidebar-collapsed') === 'true';
 								if (collapsed) document.body.classList.add('sidebar-collapsed');

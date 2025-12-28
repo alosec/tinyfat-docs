@@ -38,53 +38,58 @@
 /* Desktop sidebar toggle */
 @media (min-width: 50rem) {
 	.sidebar-toggle {
-		position: absolute;
-		top: 1rem;
-		right: -12px;
-		z-index: 100;
+		position: fixed;
+		top: calc(var(--sl-nav-height) + 1rem);
+		left: calc(var(--sl-sidebar-width) - 12px);
+		z-index: 200;
 		width: 24px;
 		height: 24px;
 		padding: 0;
 		border: 1px solid var(--sl-color-gray-5);
 		border-radius: 50%;
-		background: var(--sl-color-bg);
+		background: var(--sl-color-bg-sidebar);
 		color: var(--sl-color-gray-3);
 		cursor: pointer;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		transition: all 0.2s ease;
+		transition: left 0.2s ease, background-color 0.2s ease;
 	}
 
 	.sidebar-toggle:hover {
 		color: var(--sl-color-white);
 		border-color: var(--sl-color-gray-3);
+		background: var(--sl-color-gray-6);
 	}
 
 	.sidebar-toggle svg {
 		transition: transform 0.2s ease;
 	}
 
+	body.sidebar-collapsed .sidebar-toggle {
+		left: 12px;
+	}
+
 	body.sidebar-collapsed .sidebar-toggle svg {
 		transform: rotate(180deg);
 	}
 
-	.sidebar {
-		position: relative;
-		transition: transform 0.2s ease, opacity 0.2s ease;
+	/* Hide sidebar content when collapsed */
+	.sidebar-pane {
+		transition: transform 0.2s ease, visibility 0.2s ease;
 	}
 
-	body.sidebar-collapsed .sidebar > *:not(.sidebar-toggle) {
-		opacity: 0;
-		pointer-events: none;
-	}
-
-	body.sidebar-collapsed .sidebar {
+	body.sidebar-collapsed .sidebar-pane {
 		transform: translateX(-100%);
-		margin-right: calc(-1 * var(--sl-sidebar-width));
 	}
 
-	body.sidebar-collapsed .sidebar-toggle {
-		right: -36px;
+	/* Shift content when sidebar is collapsed */
+	body.sidebar-collapsed .main-frame {
+		--sl-content-inline-start: 0px !important;
+		padding-inline-start: 0 !important;
+	}
+
+	body.sidebar-collapsed .header {
+		--sl-content-inline-start: 0px;
 	}
 }

@@ -1,40 +1,52 @@
 ---
-title: Welcome to Starlight
-description: Get started building your docs site with Starlight.
-template: splash # Remove or comment out this line to display the site sidebar on this page.
+title: TinyFat Documentation
+description: Your AI agent in the cloud. Email it, it works.
+template: splash
 hero:
-  tagline: Congrats on setting up a new Starlight project!
+  tagline: Your little guy in the sky. Email it, it works.
   image:
     file: ../../assets/houston.webp
   actions:
-    - text: Example Guide
-      link: /guides/example/
+    - text: Get Started
+      link: /getting-started/what-is-tinyfat/
       icon: right-arrow
-    - text: Read the Starlight docs
-      link: https://starlight.astro.build
-      icon: external
+    - text: Sign Up
+      link: https://tinyfat.com/signup
       variant: minimal
 ---
 
 import { Card, CardGrid } from '@astrojs/starlight/components';
 
-## Next steps
+## What can your agent do?
 
 <CardGrid stagger>
-	<Card title="Update content" icon="pencil">
-		Edit `src/content/docs/index.mdx` to see this page change.
+	<Card title="Email Communication" icon="email">
+		Send an email, get a response. Your agent reads, thinks, and replies.
 	</Card>
-	<Card title="Change page layout" icon="document">
-		Delete `template: splash` in `src/content/docs/index.mdx` to display a
-		sidebar on this page.
+	<Card title="File Management" icon="document">
+		Your agent has its own filesystem. Upload files, create documents, build knowledge bases.
 	</Card>
-	<Card title="Add new content" icon="add-document">
-		Add Markdown or MDX files to `src/content/docs` to create new pages.
+	<Card title="Run Commands" icon="laptop">
+		Full Linux shell access. Install tools, run scripts, automate workflows.
 	</Card>
-	<Card title="Configure your site" icon="setting">
-		Edit your `sidebar` and other config in `astro.config.mjs`.
+	<Card title="Persistent Memory" icon="star">
+		MEMORY.md persists across sessions. Your agent remembers context between conversations.
 	</Card>
-	<Card title="Read the docs" icon="open-book">
-		Learn more in [the Starlight Docs](https://starlight.astro.build/).
+</CardGrid>
+
+## Quick links
+
+<CardGrid>
+	<Card title="Quick Start" icon="rocket">
+		[Get your agent running in 5 minutes →](/getting-started/quick-start/)
+	</Card>
+	<Card title="How Email Works" icon="open-book">
+		[Understand the outbox pattern →](/concepts/outbox/)
+	</Card>
+	<Card title="Skills & Tools" icon="puzzle">
+		[What your agent can do out of the box →](/guides/skills/)
+	</Card>
+	<Card title="Architecture" icon="setting">
+		[How it all fits together →](/concepts/architecture/)
 	</Card>
 </CardGrid>

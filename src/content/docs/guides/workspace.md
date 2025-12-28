@@ -1,0 +1,133 @@
+---
+title: Agent Workspace
+description: Understanding your agent's filesystem and memory.
+---
+
+import { FileTree, Aside, Code } from '@astrojs/starlight/components';
+
+Your agent has a persistent filesystem at `/data`. Files here survive container restarts.
+
+## Directory structure
+
+<FileTree>
+- data/
+  - MEMORY.md — Agent's persistent memory
+  - CEMAIL/ — Email channel data
+  - outbox/
+    - email/ — Pending emails to send
+    - sent/ — Successfully sent emails
+    - failed/ — Failed email attempts
+  - skills/
+    - pi-skills/ — Core skills from pi-mono
+    - tiny-skills/ — TinyFat platform skills
+  - context.jsonl — Conversation history
+</FileTree>
+
+## MEMORY.md
+
+This is your agent's brain. It persists across sessions and contains:
+
+- Agent identity and configuration
+- Owner information
+- Instructions for the outbox pattern
+- Working notes and session logs
+
+### Editing MEMORY.md
+
+Your agent can update its own memory:
+
+```
+"Remember that I prefer bullet points over paragraphs."
+```
+
+You can also edit it directly through the dashboard's file editor.
+
+### What to put in MEMORY.md
+
+- Preferences and working style
+- Project context and goals
+- Important dates or deadlines
+- Links to frequently accessed resources
+- Notes from previous sessions
+
+## The outbox directory
+
+Your agent sends emails by writing JSON files to `/data/outbox/email/`. See [The Outbox Pattern](/concepts/outbox/) for details.
+
+## Skills directory
+
+Pre-installed skills live in `/data/skills/`:
+
+### pi-skills
+
+Core skills from the pi-mono project:
+- Browser automation
+- Google CLIs (Gmail, Calendar, Drive)
+- Brave search
+- Beads issue tracking
+
+### tiny-skills
+
+TinyFat platform skills:
+- Firecrawl web scraping
+- Linear issue tracking
+- Notion integration
+- Slack API
+
+<Aside type="tip">
+  Each skill has a SKILL.md or README.md explaining how to use it. Ask your agent to list its skills!
+</Aside>
+
+## Context file
+
+`context.jsonl` stores conversation history in JSON Lines format. Each line is a message or tool result.
+
+The agent uses this to maintain context across the session. It's automatically managed by pi-mono.
+
+## File persistence
+
+All files in `/data` persist across:
+- Container restarts
+- Sleep/wake cycles
+- Platform updates
+
+Files outside `/data` (like `/tmp` or `/app`) are ephemeral.
+
+## Accessing files
+
+### Dashboard file editor
+
+1. Go to your dashboard
+2. Click on files in the sidebar
+3. View and edit directly in the browser
+
+### Via email
+
+Ask your agent to read or write files:
+
+```
+"Create a file called projects.md listing my current projects."
+"What's in MEMORY.md?"
+"Show me the contents of /data/skills/tiny-skills/README.md"
+```
+
+### Via the API
+
+Files are accessible through the dashboard API (authenticated).
+
+## Storage limits
+
+Each agent has a 1GB volume. This is plenty for:
+- Text files and documents
+- Skills and scripts
+- Conversation history
+
+Not recommended:
+- Large binary files
+- Media storage
+- Databases (use external services)
+
+## Next steps
+
+- [Skills & tools](/guides/skills/) — What your agent can do
+- [Memory & persistence](/concepts/memory/) — How memory works

@@ -1,0 +1,87 @@
+---
+title: Your First Email
+description: Send your first email to your TinyFat agent.
+---
+
+import { Steps, Aside, Code } from '@astrojs/starlight/components';
+
+Now that your agent is set up, let's send your first email.
+
+## Before you start
+
+Make sure you've:
+1. [Created your agent](/getting-started/quick-start/)
+2. Configured your Anthropic API key in the dashboard
+
+## Send an email
+
+<Steps>
+
+1. **Open your email client**
+   
+   Gmail, Outlook, Apple Mail — anything works.
+
+2. **Compose a new email**
+   
+   - **To:** `yourname@tinyfat.com` (your agent's email)
+   - **Subject:** `Hello!`
+   - **Body:** `Hi there! What can you do?`
+
+3. **Send it**
+   
+   Your agent will wake up, process your message, and reply.
+
+4. **Wait for the response**
+   
+   First response may take 30-60 seconds while the container boots. Subsequent responses are faster.
+
+</Steps>
+
+<Aside type="note">
+  Your agent's first response will be slower because the container needs to start. After that, it stays warm for a while before sleeping again.
+</Aside>
+
+## Understanding the response
+
+Your agent will reply from `yourname@tinyfat.com`. The response comes from the platform's email system (Resend), so threading works normally in your email client.
+
+## Allowed senders
+
+By default, only **your email** (the one you signed up with) can message your agent. This prevents spam and unauthorized access.
+
+To allow others to email your agent, add them in the dashboard under **Settings → Allowed Senders**.
+
+## What to try next
+
+### Ask for help
+```
+What can you help me with?
+```
+
+### Have it remember something
+```
+Remember that my favorite color is blue and I prefer concise responses.
+```
+
+### Ask it to check its skills
+```
+What skills do you have installed? List them with brief descriptions.
+```
+
+### Give it a task
+```
+Create a file called notes.md with a summary of our conversation so far.
+```
+
+## Tips for effective emails
+
+1. **Be specific** — "Summarize this article: [URL]" beats "Read this"
+2. **One task at a time** — Complex requests work better as follow-ups  
+3. **Check the workspace** — Your agent creates files you can view in the dashboard
+4. **Use MEMORY.md** — Ask your agent to update its memory for persistent context
+
+## Next steps
+
+- [How email works](/guides/email/) — Understand the outbox pattern
+- [Agent workspace](/guides/workspace/) — Explore your agent's filesystem
+- [Skills & tools](/guides/skills/) — See what's pre-installed

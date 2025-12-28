@@ -1,0 +1,124 @@
+---
+title: Email Communication
+description: How email works with your TinyFat agent.
+---
+
+import { Aside, Code } from '@astrojs/starlight/components';
+
+Your agent communicates primarily through email. This guide explains how the email system works.
+
+## Email address
+
+Every agent gets an email address: `yourname@tinyfat.com`
+
+This is a real email address. You can send to it from any email client. Your agent's replies come from the same address.
+
+## The email flow
+
+```
+You → yourname@tinyfat.com
+         ↓
+   Resend webhook → TinyFat platform
+         ↓
+   Wake container if sleeping
+         ↓
+   Agent reads email, thinks
+         ↓
+   Agent writes to outbox
+         ↓
+   Platform sends email
+         ↓
+You ← yourname@tinyfat.com
+```
+
+## Allowed senders
+
+By default, only your signup email can message your agent. This is a security feature.
+
+### Adding allowed senders
+
+1. Go to your dashboard
+2. Open **Settings → Allowed Senders**
+3. Add email addresses one at a time
+
+### Domain wildcards
+
+You can allow entire domains:
+
+- `@yourcompany.com` — Anyone with a @yourcompany.com address
+- `@gmail.com` — Anyone with Gmail (probably too broad!)
+
+<Aside type="caution">
+  Be careful with domain wildcards. Anyone with an email at that domain can message your agent.
+</Aside>
+
+## Email threading
+
+Your agent's replies include proper email headers (`In-Reply-To`, `References`) so threads work correctly in your email client.
+
+When replying to your agent, use your email client's reply function to maintain the thread.
+
+## Attachments
+
+<Aside type="note">
+  Attachment handling is currently limited. Text attachments work. Large files or binary attachments may be truncated or ignored.
+</Aside>
+
+## Response time
+
+- **Cold start:** 30-60 seconds (container booting)
+- **Warm:** 10-30 seconds (container already running)
+- **Processing time:** Depends on task complexity
+
+Containers sleep after ~15 minutes of inactivity to save resources.
+
+## Rate limiting
+
+There are no hard limits, but:
+
+- Be reasonable with email volume
+- Complex tasks take time to process
+- The agent won't interrupt itself if you send multiple emails quickly
+
+## Email formatting
+
+Your agent receives:
+
+- **Plain text** — Always available
+- **HTML** — If your email client sends it
+
+Your agent sends:
+
+- **Plain text** — Simple and universal
+- Markdown formatting is preserved in the text
+
+## Special commands
+
+Some subjects trigger special behavior:
+
+### `/router-login`
+
+Request a login token for API access. The platform emails your owner address with a magic link.
+
+## Debugging email issues
+
+### Email not received by agent
+
+1. Check the "to" address matches your agent exactly
+2. Verify your email is in allowed senders
+3. Check the dashboard for error logs
+
+### No response from agent
+
+1. Check the dashboard — is the container running?
+2. Look at the activity log for errors
+3. Verify your Anthropic API key is configured
+
+### Response in spam
+
+Add `yourname@tinyfat.com` to your contacts or mark as "not spam".
+
+## Next steps
+
+- [The outbox pattern](/concepts/outbox/) — How agents send email
+- [Dashboard guide](/guides/dashboard/) — Monitor your agent

@@ -1,0 +1,168 @@
+---
+title: Skills & Tools
+description: What your TinyFat agent can do out of the box.
+---
+
+import { Aside, Card, CardGrid } from '@astrojs/starlight/components';
+
+Your agent comes with pre-installed skills that extend its capabilities. Skills are documentation files that teach your agent how to use specific tools and APIs.
+
+## Pre-installed skills
+
+Skills are installed at `/data/skills/` in two directories:
+
+### pi-skills
+
+Core skills from the [pi-mono](https://github.com/badlogic/pi-mono) project:
+
+| Skill | Description |
+|-------|-------------|
+| **beads** | Issue tracking with Beads CLI |
+| **brave-search** | Web search via Brave API |
+| **browser** | Browser automation with Puppeteer |
+| **google-calendar** | Google Calendar CLI |
+| **google-drive** | Google Drive CLI |
+| **google-mail** | Gmail CLI |
+
+### tiny-skills
+
+TinyFat platform skills from [tiny-skills](https://github.com/alosec/tiny-skills):
+
+| Skill | Description |
+|-------|-------------|
+| **firecrawl** | Web scraping with JavaScript rendering |
+| **linear** | Linear issue tracking |
+| **notion** | Notion pages and databases |
+| **slack** | Slack API integration |
+
+## Using skills
+
+### Ask your agent what it can do
+
+```
+What skills do you have? Give me a brief summary of each.
+```
+
+### Request a specific skill
+
+```
+Use firecrawl to scrape https://example.com and summarize the content.
+```
+
+### Check skill documentation
+
+```
+Show me the SKILL.md file for the firecrawl skill.
+```
+
+## Skill details
+
+### Firecrawl
+
+Scrape web pages that require JavaScript rendering. Great for:
+- Dynamic websites
+- SPAs (Single Page Apps)
+- Pages behind client-side loading
+
+Requires: `FIRECRAWL_API_KEY` (get one at [firecrawl.dev](https://firecrawl.dev))
+
+### Linear
+
+Manage Linear issues directly. Your agent can:
+- List issues and projects
+- Create new issues
+- Update issue status
+- Add comments
+
+Requires: Linear API key in your agent's environment.
+
+### Notion
+
+Read and write Notion pages. Your agent can:
+- Search pages
+- Read page content
+- Create new pages
+- Update existing content
+
+Requires: Notion integration token.
+
+### Slack
+
+Post messages and read channels. In hybrid mode, your agent can:
+- Respond to @mentions
+- Post to channels
+- Search message history
+
+Requires: Slack bot and app tokens (configured in dashboard).
+
+## Built-in capabilities
+
+Beyond skills, your agent has these built-in capabilities:
+
+### File operations
+
+```
+Create a file called notes.md with the following content...
+Read the contents of /data/MEMORY.md
+List all files in /data/skills/
+```
+
+### Shell commands
+
+```
+Run `ls -la /data` and show me the output.
+Install jq if it's not already installed.
+```
+
+### Code execution
+
+```
+Write a Python script that counts words in MEMORY.md and run it.
+```
+
+<Aside type="caution">
+  Your agent has full shell access. It can install packages and run commands. This is powerful but requires trust.
+</Aside>
+
+## Adding new skills
+
+### Install a skill repository
+
+```
+Clone https://github.com/someone/their-skills into /data/skills/
+```
+
+### Create a custom skill
+
+Create a SKILL.md file in `/data/skills/my-skill/`:
+
+```markdown
+---
+name: my-skill
+description: What this skill does
+---
+
+# My Custom Skill
+
+Instructions for the agent on how to use this skill...
+```
+
+## API keys for skills
+
+Some skills require API keys. Configure them in the dashboard:
+
+1. Go to **Settings → API Keys**
+2. Add the key for the service
+3. Your agent can now use that skill
+
+Current supported keys:
+- Anthropic (required)
+- Firecrawl
+- Linear
+- Notion
+- Slack
+
+## Next steps
+
+- [Architecture](/concepts/architecture/) — How everything connects
+- [The outbox pattern](/concepts/outbox/) — How your agent sends email

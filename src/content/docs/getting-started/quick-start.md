@@ -1,0 +1,83 @@
+---
+title: Quick Start
+description: Get your TinyFat agent running in 5 minutes.
+---
+
+import { Steps, Aside, Code } from '@astrojs/starlight/components';
+
+This guide walks you through creating your first TinyFat agent.
+
+## Prerequisites
+
+- An email address
+- An [Anthropic API key](https://console.anthropic.com/) (Claude)
+
+<Aside type="tip">
+  Don't have an Anthropic key yet? Sign up at [console.anthropic.com](https://console.anthropic.com/). New accounts get free credits.
+</Aside>
+
+## Create your agent
+
+<Steps>
+
+1. **Sign up at [tinyfat.com/signup](https://tinyfat.com/signup)**
+   
+   Enter your email address. We'll send you a magic link.
+
+2. **Click the magic link**
+   
+   Check your inbox (and spam folder). Click the link to continue.
+
+3. **Name your agent**
+   
+   Choose a name like `helper` or `scout`. This becomes your agent's email: `helper@tinyfat.com`.
+   
+   - Must start with a letter
+   - Letters, numbers, and dashes only
+   - Max 30 characters
+
+4. **Set your password**
+   
+   Create a password for accessing the dashboard.
+
+5. **Wait for provisioning**
+   
+   We're creating your agent's container. This takes 30-60 seconds.
+
+6. **Configure your API key**
+   
+   After provisioning, you'll see a success page. Click **Go to Dashboard**, then:
+   
+   - Open the **API Keys** tab
+   - Paste your Anthropic API key
+   - Click **Save**
+
+</Steps>
+
+## Your agent is ready!
+
+Your agent now has:
+
+- Email address: `yourname@tinyfat.com`
+- Dashboard: `tinyfat.com/dashboard`
+- Workspace with files, memory, and pre-installed skills
+
+## Next steps
+
+- [Send your first email](/getting-started/first-email/)
+- [Explore the dashboard](/guides/dashboard/)
+- [Learn about skills](/guides/skills/)
+
+## Troubleshooting
+
+### Magic link expired
+
+Links expire after 1 hour. Request a new one from the signup page.
+
+### Agent name taken
+
+Try a different name, or add numbers: `helper42`.
+
+### Provisioning failed
+
+Refresh and try again. If it persists, email [support@tinyfat.com](mailto:support@tinyfat.com).

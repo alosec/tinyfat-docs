@@ -1,0 +1,144 @@
+---
+title: Architecture
+description: How TinyFat works under the hood.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+TinyFat is built on open-source components with a simple, transparent architecture.
+
+## The stack
+
+| Component | Technology | Purpose |
+|-----------|------------|---------|
+| Agent runtime | [pi-mono](https://github.com/badlogic/pi-mono) | Claude-powered agent framework |
+| Container | [Fly.io](https://fly.io) Machines | Linux containers with volumes |
+| Platform | [Astro](https://astro.build) on Cloudflare Pages | Dashboard, API, webhooks |
+| Email | [Resend](https://resend.com) | Inbound/outbound email |
+| Database | [Supabase](https://supabase.com) | User accounts, agent config |
+| Router | Node.js on VPS | WebSocket relay, outbox processing |
+
+## Request flow
+
+### Email → Agent
+
+```
+1. You send email to yourname@tinyfat.com
+2. Resend receives it, sends webhook to platform
+3. Platform validates sender, looks up agent
+4. Platform calls Router to wake container
+5. Router starts Fly Machine if sleeping
+6. Agent container boots, connects to Router via WebSocket
+7. Router delivers email as Slack-format message
+8. Agent processes, writes response to /data/outbox/email/
+9. Router detects outbox file, reads content
+10. Platform sends email via Resend
+11. You receive reply
+```
+
+### Dashboard → Agent
+
+```
+1. You send message in dashboard chat
+2. Message goes to Router via WebSocket
+3. Router wakes container if needed
+4. Agent receives message, processes
+5. Response streams back through Router
+6. Dashboard displays response
+```
+
+## Components
+
+### Fly Machines
+
+Each agent runs in a dedicated Fly Machine:
+- Alpine Linux with Node.js
+- 1GB persistent volume at `/data`
+- Scale-to-zero when idle
+- Wake-on-demand via API
+
+Containers include:
+- pi-mono (the agent runtime)
+- Pre-installed CLIs (git, jq, ripgrep, etc.)
+- Skills in `/data/skills/`
+
+### Router
+
+The Router bridges containers to the outside world:
+- WebSocket server for agent connections
+- Fake Slack API for email-only mode
+- Outbox watcher (polls `/data/outbox/email/`)
+- Wake-on-demand triggers
+
+The Router runs on a VPS at `router.tinyfat.com`.
+
+### Platform (Astro)
+
+Handles everything user-facing:
+- Dashboard UI
+- Authentication (Supabase Auth)
+- Agent provisioning (Fly Machines API)
+- Email webhooks (Resend)
+- API endpoints
+
+Deployed to Cloudflare Pages.
+
+## Security model
+
+### Your API key
+
+Your Anthropic API key is encrypted at rest. It's only decrypted when:
+- Starting your container
+- Injected as environment variable
+- Never logged or exposed in UI
+
+### Allowed senders
+
+Only whitelisted emails can trigger your agent. This prevents:
+- Spam triggering expensive API calls
+- Unauthorized access to your agent
+
+### Container isolation
+
+Each agent runs in its own container:
+- Separate filesystem
+- Separate network
+- No access to other agents' data
+
+<Aside type="note">
+  Containers run with limited privileges. Your agent can't access the host system or other containers.
+</Aside>
+
+## Scale-to-zero
+
+Agents sleep after ~15 minutes of inactivity:
+- Container stops, releases compute
+- Volume persists (your files are safe)
+- First request wakes the container (30-60s cold start)
+
+This keeps costs low for idle agents.
+
+## Open source
+
+The entire stack is inspectable:
+
+- **pi-mono:** [github.com/badlogic/pi-mono](https://github.com/badlogic/pi-mono)
+- **pi-skills:** [github.com/badlogic/pi-skills](https://github.com/badlogic/pi-skills)
+- **tiny-skills:** [github.com/alosec/tiny-skills](https://github.com/alosec/tiny-skills)
+
+The platform code (this site, the router) is not currently open source, but the agent runtime is.
+
+## Running it yourself
+
+Want to self-host? You need:
+- Fly.io account (or any Docker host)
+- Anthropic API key
+- Email provider (Resend, Postmark, etc.)
+- Domain for email routing
+
+It's not trivial to set up, which is why TinyFat exists. But it's possible, and we won't lock you in.
+
+## Next steps
+
+- [The outbox pattern](/concepts/outbox/) — How email sending works
+- [Memory & persistence](/concepts/memory/) — How data survives restarts

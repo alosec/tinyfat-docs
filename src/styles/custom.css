@@ -29,6 +29,27 @@
 	border-radius: 8px;
 }
 
+/* Constrain "On this page" right sidebar width */
+@media (min-width: 72rem) {
+	.right-sidebar-container {
+		max-width: 16rem;
+	}
+
+	/* When left sidebar is collapsed - expand content area */
+	body.sidebar-collapsed {
+		--sl-content-width: 60rem;
+	}
+
+	body.sidebar-collapsed .main-pane {
+		width: calc(100% - 16rem);
+		margin-inline-start: 0;
+	}
+
+	body.sidebar-collapsed .right-sidebar-container {
+		width: 16rem;
+	}
+}
+
 /* Desktop sidebar toggle */
 @media (min-width: 50rem) {
 	.sidebar-toggle {

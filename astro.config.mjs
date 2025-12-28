@@ -26,6 +26,15 @@ export default defineConfig({
 					],
 				},
 				{
+					label: 'Interfaces',
+					items: [
+						{ label: 'Overview', slug: 'interfaces' },
+						{ label: 'Email', slug: 'interfaces/email' },
+						{ label: 'Slack', slug: 'interfaces/slack' },
+						{ label: 'Web App', slug: 'interfaces/web-app' },
+					],
+				},
+				{
 					label: 'Guides',
 					items: [
 						{ label: 'Email Communication', slug: 'guides/email' },

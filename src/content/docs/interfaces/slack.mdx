@@ -1,0 +1,98 @@
+---
+title: Slack
+description: Real-time chat with your agent in Slack channels.
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+Connect Slack for real-time conversation. Your agent appears as a bot in your workspace.
+
+## How it works
+
+Your agent joins Slack as a bot user. Mention it to wake it up:
+
+```
+@yourbot can you summarize today's emails?
+```
+
+The agent sees the message, processes it, and replies in the thread.
+
+## Setup
+
+<Steps>
+
+1. **Create a Slack app**
+   
+   Go to [api.slack.com/apps](https://api.slack.com/apps) and create a new app.
+
+2. **Configure bot permissions**
+   
+   Your bot needs these OAuth scopes:
+   - `chat:write` — Send messages
+   - `app_mentions:read` — See @mentions
+   - `channels:history` — Read channel messages
+   - `channels:read` — List channels
+
+3. **Install to workspace**
+   
+   Install the app and copy the Bot Token (`xoxb-...`).
+
+4. **Add tokens to TinyFat**
+   
+   In Dashboard → Settings → Slack, add:
+   - Bot Token
+   - App Token (for Socket Mode)
+
+5. **Invite bot to channels**
+   
+   In Slack: `/invite @yourbot`
+
+</Steps>
+
+## Features
+
+### Mentions
+
+`@yourbot` wakes your agent and passes the message.
+
+### Threads
+
+Replies go in threads, keeping channels clean.
+
+### Channel context
+
+Your agent can read recent channel history for context.
+
+### File sharing
+
+Share files in Slack — your agent can read text files and images.
+
+## Hybrid mode
+
+Slack and email work together:
+
+- Email `yourbot@tinyfat.com` — Agent responds via email
+- Mention `@yourbot` in Slack — Agent responds in Slack
+- Same agent, same memory, different interfaces
+
+<Aside type="tip">
+  Use email for async tasks, Slack for quick questions. Your agent's memory persists across both.
+</Aside>
+
+## When to use Slack
+
+- ✅ Real-time conversation
+- ✅ Team visibility (others can see agent responses)
+- ✅ Quick back-and-forth
+- ✅ Sharing context from Slack channels
+
+## Limitations
+
+- Requires Slack workspace admin access
+- More setup than email
+- Bot must be invited to each channel
+
+## Next steps
+
+- [Web App Interface](/interfaces/web-app/) — Dashboard chat
+- [Email Interface](/interfaces/email/) — The default option

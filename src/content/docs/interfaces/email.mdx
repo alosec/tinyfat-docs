@@ -1,0 +1,69 @@
+---
+title: Email
+description: The primary way to talk to your agent. Send an email, get a response.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Email is the default interface. No apps to install, works from any device.
+
+## Your agent's address
+
+Every agent gets: `yourname@tinyfat.com`
+
+This is a real email address. Send from Gmail, Outlook, Apple Mail, your phone — anywhere.
+
+## How it works
+
+```
+You send email → Agent wakes up → Agent thinks → Agent replies
+```
+
+1. **You email** `yourname@tinyfat.com`
+2. **Resend** receives it, triggers webhook
+3. **Platform** validates sender, wakes container
+4. **Agent** processes your message
+5. **Agent** writes response to outbox
+6. **Platform** sends the reply
+7. **You** get the email
+
+Cold start is 30-60 seconds. Warm containers respond in 10-30 seconds.
+
+## Allowed senders
+
+Only whitelisted emails can trigger your agent. This prevents:
+- Spam burning your API credits
+- Random people accessing your agent
+
+Configure in **Dashboard → Settings → Allowed Senders**.
+
+### Wildcards
+
+- `user@example.com` — Exact match
+- `@yourcompany.com` — Anyone at that domain
+
+<Aside type="caution">
+  Domain wildcards are powerful. `@gmail.com` would let anyone with Gmail message your agent.
+</Aside>
+
+## Threading
+
+Replies include proper email headers (`In-Reply-To`, `References`). Threads work correctly in your email client.
+
+Use your email app's Reply button to maintain conversation threads.
+
+## Attachments
+
+Text attachments work. Large or binary files may be truncated.
+
+## When to use email
+
+- ✅ Async tasks that don't need immediate response
+- ✅ When you're away from a computer
+- ✅ Delegating work you'll check on later
+- ✅ Sending from mobile
+
+## Next steps
+
+- [The Outbox Pattern](/concepts/outbox/) — How your agent sends email
+- [Slack Interface](/interfaces/slack/) — Real-time chat option

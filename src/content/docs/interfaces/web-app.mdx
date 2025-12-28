@@ -1,0 +1,82 @@
+---
+title: Web App
+description: Chat with your agent directly in the dashboard.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+The dashboard at [tinyfat.com/dashboard](https://tinyfat.com/dashboard) includes a chat interface. No email or Slack needed.
+
+## How it works
+
+The chat connects directly to your agent's container via WebSocket:
+
+```
+You type → WebSocket → Router → Agent → Response streams back
+```
+
+Messages appear in real-time as your agent thinks and responds.
+
+## Features
+
+### Streaming responses
+
+Watch your agent's response appear word by word. No waiting for the full reply.
+
+### Activity drawer
+
+Expand the drawer to see:
+- Tool calls in progress
+- File operations
+- Command execution
+- Errors and debugging info
+
+### File context
+
+The file browser is right there. Edit `MEMORY.md`, check the outbox, browse skills — all while chatting.
+
+### Session persistence
+
+Chat history persists in your browser. Pick up where you left off.
+
+## When to use the web app
+
+- ✅ Active development/debugging
+- ✅ Watching agent behavior in real-time
+- ✅ Editing files alongside conversation
+- ✅ When you need the activity drawer
+
+## Compared to email
+
+| | Web App | Email |
+|---|---------|-------|
+| Response time | Instant streaming | 30-60s (cold) |
+| Visibility | Full activity drawer | Just the reply |
+| File access | Integrated browser | Ask agent to read/write |
+| Mobile | Works but cramped | Native experience |
+
+## Compared to Slack
+
+| | Web App | Slack |
+|---|---------|-------|
+| Team visibility | Just you | Whole channel |
+| Setup | None | Slack app required |
+| Threading | Single conversation | Slack threads |
+| Integration | File browser | Slack context |
+
+<Aside type="tip">
+  Use web app when you're actively working with your agent. Use email or Slack for fire-and-forget tasks.
+</Aside>
+
+## Keyboard shortcuts
+
+| Shortcut | Action |
+|----------|--------|
+| `Cmd/Ctrl + K` | Focus chat input |
+| `Cmd/Ctrl + S` | Save current file |
+| `Esc` | Close panels |
+
+## Next steps
+
+- [Dashboard Guide](/guides/dashboard/) — Full dashboard walkthrough
+- [Email Interface](/interfaces/email/) — Async communication

@@ -1,0 +1,42 @@
+---
+title: Interfaces
+description: Three ways to talk to your agent.
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+Your agent supports multiple interfaces. Same agent, same memory — different ways to communicate.
+
+<CardGrid>
+  <Card title="Email" icon="email">
+    The default. Send an email, get a response. Works from any device.
+    [Learn more →](/interfaces/email/)
+  </Card>
+  <Card title="Slack" icon="discord">
+    Real-time chat in your Slack workspace. @mention to wake your agent.
+    [Learn more →](/interfaces/slack/)
+  </Card>
+  <Card title="Web App" icon="laptop">
+    Dashboard chat with streaming responses and activity drawer.
+    [Learn more →](/interfaces/web-app/)
+  </Card>
+</CardGrid>
+
+## Comparison
+
+| Feature | Email | Slack | Web App |
+|---------|-------|-------|---------|
+| Setup | None | Slack app | None |
+| Response | 30-60s cold | Real-time | Streaming |
+| Mobile | Native | Slack app | Browser |
+| Team access | Forward emails | Channel visibility | Just you |
+| File browser | No | No | Yes |
+| Activity drawer | No | No | Yes |
+
+## Which to use?
+
+- **Email** — Fire and forget. Async tasks. Mobile-first.
+- **Slack** — Team visibility. Real-time. Quick questions.
+- **Web App** — Active development. Debugging. File editing.
+
+All three share the same agent memory. Switch between them freely.

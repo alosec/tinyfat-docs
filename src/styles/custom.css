@@ -34,3 +34,57 @@
 .sl-markdown-content .starlight-aside {
 	border-radius: 8px;
 }
+
+/* Desktop sidebar toggle */
+@media (min-width: 50rem) {
+	.sidebar-toggle {
+		position: absolute;
+		top: 1rem;
+		right: -12px;
+		z-index: 100;
+		width: 24px;
+		height: 24px;
+		padding: 0;
+		border: 1px solid var(--sl-color-gray-5);
+		border-radius: 50%;
+		background: var(--sl-color-bg);
+		color: var(--sl-color-gray-3);
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		transition: all 0.2s ease;
+	}
+
+	.sidebar-toggle:hover {
+		color: var(--sl-color-white);
+		border-color: var(--sl-color-gray-3);
+	}
+
+	.sidebar-toggle svg {
+		transition: transform 0.2s ease;
+	}
+
+	body.sidebar-collapsed .sidebar-toggle svg {
+		transform: rotate(180deg);
+	}
+
+	.sidebar {
+		position: relative;
+		transition: transform 0.2s ease, opacity 0.2s ease;
+	}
+
+	body.sidebar-collapsed .sidebar > *:not(.sidebar-toggle) {
+		opacity: 0;
+		pointer-events: none;
+	}
+
+	body.sidebar-collapsed .sidebar {
+		transform: translateX(-100%);
+		margin-right: calc(-1 * var(--sl-sidebar-width));
+	}
+
+	body.sidebar-collapsed .sidebar-toggle {
+		right: -36px;
+	}
+}

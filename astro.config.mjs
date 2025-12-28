@@ -32,6 +32,8 @@ export default defineConfig({
 						{ label: 'Agent Workspace', slug: 'guides/workspace' },
 						{ label: 'Dashboard', slug: 'guides/dashboard' },
 						{ label: 'Skills & Tools', slug: 'guides/skills' },
+						{ label: 'Memory Bank Pattern', slug: 'guides/memory-bank' },
+						{ label: 'Beads Issue Tracking', slug: 'guides/beads' },
 					],
 				},
 				{

@@ -3,25 +3,25 @@ title: Agent Workspace
 description: Understanding your agent's filesystem and memory.
 ---
 
-import { FileTree, Aside, Code } from '@astrojs/starlight/components';
+import { Aside } from '@astrojs/starlight/components';
 
 Your agent has a persistent filesystem at `/data`. Files here survive container restarts.
 
 ## Directory structure
 
-<FileTree>
-- data/
-  - MEMORY.md — Agent's persistent memory
-  - CEMAIL/ — Email channel data
-  - outbox/
-    - email/ — Pending emails to send
-    - sent/ — Successfully sent emails
-    - failed/ — Failed email attempts
-  - skills/
-    - pi-skills/ — Core skills from pi-mono
-    - tiny-skills/ — TinyFat platform skills
-  - context.jsonl — Conversation history
-</FileTree>
+```
+/data
+├── MEMORY.md           # Agent's persistent memory
+├── context.jsonl       # Conversation history
+├── CEMAIL/             # Email channel data
+├── outbox/
+│   ├── email/          # Pending emails to send
+│   ├── sent/           # Successfully sent emails
+│   └── failed/         # Failed email attempts
+└── skills/
+    ├── pi-skills/      # Core skills from pi-mono
+    └── tiny-skills/    # TinyFat platform skills
+```
 
 ## MEMORY.md
 

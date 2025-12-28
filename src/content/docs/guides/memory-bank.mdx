@@ -3,7 +3,7 @@ title: Memory Bank Pattern
 description: Organize project knowledge for AI agent collaboration.
 ---
 
-import { FileTree, Aside, Steps } from '@astrojs/starlight/components';
+import { Aside, Steps } from '@astrojs/starlight/components';
 
 The Memory Bank is a structured directory pattern for maintaining project context across agent sessions. It's how your agent (and you) keep track of what's happening, what's been decided, and what to do next.
 
@@ -22,54 +22,52 @@ AI agents have no memory between sessions. Every conversation starts fresh. The 
 
 Personal context spanning all projects. Lives at `~/global-memory-bank/`:
 
-<FileTree>
-- global-memory-bank/
-  - 00-core/ — Identity, systems (stable)
-    - identity.md — Who you are, goals, working style
-    - systems.md — Tools, environments, key paths
-  - 01-active/ — Current work (**start here**)
-    - currentWork.md — What's happening NOW
-    - nextUp.md — Prioritized cross-project backlog
-    - blockers.md — Active obstacles
-  - 02-patterns/ — Reusable patterns across projects
-  - 03-guides/ — Cross-project how-tos
-  - 04-contacts/ — People, orgs, relationships
-  - 05-ideas/ — Ideas, explorations
-  - 06-learnings/ — Technical learnings (dated)
-  - 07-projects/ — Cross-project summaries
-  - 08-sessions/ — Archived session logs (dated)
-  - 09-research/ — Deep dives, explorations
-</FileTree>
+```
+global-memory-bank/
+├── 00-core/                # Identity, systems (stable)
+│   ├── identity.md         # Who you are, goals, working style
+│   └── systems.md          # Tools, environments, key paths
+├── 01-active/              # Current work (START HERE)
+│   ├── currentWork.md      # What's happening NOW
+│   ├── nextUp.md           # Prioritized cross-project backlog
+│   └── blockers.md         # Active obstacles
+├── 02-patterns/            # Reusable patterns across projects
+├── 03-guides/              # Cross-project how-tos
+├── 04-contacts/            # People, orgs, relationships
+├── 05-ideas/               # Ideas, explorations
+├── 06-learnings/           # Technical learnings (dated)
+├── 07-projects/            # Cross-project summaries
+├── 08-sessions/            # Archived session logs (dated)
+└── 09-research/            # Deep dives, explorations
+```
 
 ### Project Memory Bank
 
 Project-specific context. Lives at `project/memory-bank/`:
 
-## Directory structure
-
-<FileTree>
-- memory-bank/
-  - 00-core/ — Identity, constraints, tech stack
-    - CORE.md — **Read this first** — architecture constraints
-    - README.md — Project overview
-    - techStack.md — Technologies used
-  - 01-architecture/ — System design
-    - architecture.md — Full system overview
-    - decisions.md — Architectural decision records (ADRs)
-  - 02-active/ — Current state (**check first**)
-    - activeWork.md — What's happening NOW
-    - blockers.md — What's stuck
-    - nextUp.md — Prioritized next actions
-  - 03-patterns/ — Reusable approaches
-  - 04-business/ — Product & positioning
-  - 05-sessions/ — Session logs (dated)
-  - 06-learnings/ — Technical discoveries
-  - 07-reference/ — Imported docs, specs
-  - 08-history/ — Milestones, retrospectives
-  - 09-research/ — Competitor analysis, explorations
-  - 10-archive/ — Deprecated/superseded docs
-  - README.md — Quick start guide
-</FileTree>
+```
+memory-bank/
+├── 00-core/                # Identity, constraints, tech stack
+│   ├── CORE.md             # READ THIS FIRST — architecture constraints
+│   ├── README.md           # Project overview
+│   └── techStack.md        # Technologies used
+├── 01-architecture/        # System design
+│   ├── architecture.md     # Full system overview
+│   └── decisions.md        # Architectural decision records (ADRs)
+├── 02-active/              # Current state (CHECK FIRST)
+│   ├── activeWork.md       # What's happening NOW
+│   ├── blockers.md         # What's stuck
+│   └── nextUp.md           # Prioritized next actions
+├── 03-patterns/            # Reusable approaches
+├── 04-business/            # Product & positioning
+├── 05-sessions/            # Session logs (dated)
+├── 06-learnings/           # Technical discoveries
+├── 07-reference/           # Imported docs, specs
+├── 08-history/             # Milestones, retrospectives
+├── 09-research/            # Competitor analysis, explorations
+├── 10-archive/             # Deprecated/superseded docs
+└── README.md               # Quick start guide
+```
 
 ## The numbered prefix system
 

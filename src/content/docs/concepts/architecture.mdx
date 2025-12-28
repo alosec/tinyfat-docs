@@ -3,8 +3,6 @@ title: Architecture
 description: How TinyFat works under the hood.
 ---
 
-import { Aside } from '@astrojs/starlight/components';
-
 TinyFat is built on open-source components with a simple, transparent architecture.
 
 ## The stack
@@ -105,9 +103,9 @@ Each agent runs in its own container:
 - Separate network
 - No access to other agents' data
 
-<Aside type="note">
-  Containers run with limited privileges. Your agent can't access the host system or other containers.
-</Aside>
+:::note
+Containers run with limited privileges. Your agent can't access the host system or other containers.
+:::
 
 ## Scale-to-zero
 

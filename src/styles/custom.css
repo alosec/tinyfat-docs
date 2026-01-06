@@ -35,9 +35,15 @@
 		max-width: 16rem;
 	}
 
-	/* Add padding to "On this page" heading to avoid toggle overlap (only when left sidebar expanded) */
-	body:not(.sidebar-collapsed) .right-sidebar-panel h2 {
-		padding-inline-start: 1.5rem;
+	/* Fix right sidebar content to consistent width regardless of left sidebar state */
+	.right-sidebar-panel .sl-container {
+		width: 100% !important;
+		max-width: none !important;
+	}
+
+	/* Add padding to entire right sidebar panel for toggle button space */
+	.right-sidebar-panel {
+		padding-inline-start: 2rem !important;
 	}
 
 	/* When left sidebar is collapsed - expand content area */

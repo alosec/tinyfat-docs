@@ -131,8 +131,8 @@
 	}
 }
 
-/* Desktop sidebar toggle */
-@media (min-width: 50rem) {
+/* Desktop sidebar toggle - only show at 72rem+ to avoid mobile TOC overlap */
+@media (min-width: 72rem) {
 	.sidebar-toggle {
 		position: fixed;
 		top: calc(var(--sl-nav-height) + 1rem);

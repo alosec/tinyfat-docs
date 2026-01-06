@@ -9,131 +9,134 @@ The dashboard at [tinyfat.com/dashboard](https://tinyfat.com/dashboard) is your 
 ## Overview
 
 The dashboard shows:
-- **Agent status** — Running, sleeping, or stopped
-- **File browser** — Your agent's workspace
-- **Chat interface** — Talk to your agent directly
-- **Settings** — API keys, allowed senders, and more
+- **Job history** — All email interactions
+- **Settings** — API keys, allowed senders
+- **Usage** — Token counts and costs
 
-## Agent status
+## Job history
 
-### Status indicators
+Every email interaction is logged:
 
-- 🟢 **Running** — Container is active, agent is responsive
-- 🟡 **Starting** — Container is booting up
-- 🔴 **Stopped** — Container is sleeping (wakes on email)
+| Column | Description |
+|--------|-------------|
+| **Time** | When the job ran |
+| **From** | Sender email address |
+| **Subject** | Email subject line |
+| **Status** | `complete`, `failed`, or `pending` |
+| **Tokens** | Input/output token counts |
+| **Cost** | Estimated cost for this turn |
 
-### Start/Stop controls
+Click a job to see details:
+- Full email content
+- Agent response
+- Error messages (if failed)
+- Session hash for `/resume`
 
-You can manually start or stop your agent from the dashboard. Stopping releases compute resources but preserves all data.
-
-<Aside type="note">
-  Agents automatically sleep after ~15 minutes of inactivity. This is normal and saves resources.
-</Aside>
-
-## File browser
-
-The left sidebar shows your agent's filesystem.
-
-### Viewing files
-
-Click any file to view its contents. Text files open in the editor panel.
-
-### Editing files
-
-1. Click a file to open it
-2. Make changes in the editor
-3. Click **Save** (or Cmd/Ctrl+S)
-
-<Aside type="tip">
-  MEMORY.md is the most important file. Edit it to give your agent persistent instructions.
-</Aside>
-
-### Supported files
-
-- Text files (`.md`, `.txt`, `.json`, etc.)
-- Code files (syntax highlighting)
-- JSON files (formatted view)
-
-## Chat interface
-
-Talk to your agent directly from the dashboard, without email.
-
-### How it works
-
-The chat uses the same underlying system as email:
-1. Your message goes to the container
-2. Agent processes and responds
-3. Response appears in the chat
-
-### Activity drawer
-
-Expand the activity drawer to see:
-- Tool calls the agent is making
-- File operations
-- Command execution
-
-## Settings tabs
+## Settings
 
 ### API Keys
 
-Configure your Anthropic API key here. Without it, your agent can't think.
+Configure your Anthropic API key here.
 
 <Steps>
 1. Get your key from [console.anthropic.com](https://console.anthropic.com/)
-2. Paste it in the API Keys tab
+2. Paste it in the API Keys field
 3. Click **Save**
 </Steps>
 
+<Aside type="note">
+  Your API key is encrypted before storage. We never see it in plain text.
+</Aside>
+
 ### Allowed Senders
 
-Control who can email your agent.
+Control who can email your agent:
 
-- Your signup email is always allowed
-- Add others by email address
-- Use `@domain.com` for domain wildcards
+- **Exact match:** `alice@example.com`
+- **Domain wildcard:** `@company.com` (anyone at that domain)
 
-### Config
+Your signup email is automatically added.
 
-Agent configuration options:
-- Agent name display
-- Other platform settings
+<Aside type="caution">
+  Be careful with domain wildcards. `@gmail.com` would allow any Gmail user to email your agent.
+</Aside>
 
-### Slack (optional)
+### Integrations (Tiny tier)
 
-Connect Slack for hybrid mode:
-- Agent appears in Slack channels
-- Can respond to @mentions
-- Email still works alongside Slack
+Connect external services:
 
-## Logs and activity
+- **Slack** — Bot token for Slack integration
 
-### Activity monitor
+## Usage tracking
 
-Real-time view of agent activity:
-- Incoming messages
-- Tool executions
-- Outgoing responses
+See your agent's resource usage:
 
-### Error messages
+- **This month** — Total tokens and cost
+- **Per job** — Breakdown in job history
+- **Model** — Which model each job used
 
-If something fails, error details appear in the activity log. Common issues:
-- API key invalid or expired
-- Rate limits hit
-- Tool execution failed
+## Agent information
+
+View your agent's details:
+
+- **Email address** — Where to send messages
+- **Created** — When the agent was provisioned
+- **Plan** — Free or Tiny tier
+
+## Common tasks
+
+### Check why a job failed
+
+1. Open job history
+2. Find the failed job (red status)
+3. Click to expand
+4. Check the error message
+
+Common errors:
+- "Invalid API key" — Re-enter your Anthropic key
+- "Sender not allowed" — Add sender to allowed list
+- "Timeout" — Request took too long, try simpler task
+
+### Change your API key
+
+1. Go to Settings → API Keys
+2. Enter new key
+3. Click Save
+
+Old key is immediately replaced.
+
+### Add allowed senders
+
+1. Go to Settings → Allowed Senders
+2. Enter email address or `@domain.com`
+3. Click Add
+
+### View agent response
+
+1. Find the job in history
+2. Click to expand
+3. See "Response" section
 
 ## Keyboard shortcuts
 
 | Shortcut | Action |
 |----------|--------|
-| `Cmd/Ctrl + S` | Save current file |
-| `Cmd/Ctrl + K` | Focus chat input |
 | `Esc` | Close panels |
 
 ## Mobile access
 
-The dashboard works on mobile browsers, but the full experience is better on desktop. For quick checks, mobile works fine.
+The dashboard works on mobile browsers. For quick checks (job status, add sender), it works fine. Full management is better on desktop.
+
+## Coming soon
+
+Features in development:
+
+- **File browser** — Browse `/data` directory
+- **Live chat** — Direct conversation without email
+- **Activity stream** — Real-time tool calls and events
 
 ## Next steps
 
-- [Agent workspace](/guides/workspace/) — Understanding the filesystem
-- [Skills & tools](/guides/skills/) — What your agent can do
+- [Email Communication](/guides/email/) — How email works
+- [Agent Workspace](/guides/workspace/) — Understanding the filesystem
+- [Troubleshooting](/reference/troubleshooting/) — Common issues

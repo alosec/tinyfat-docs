@@ -6,152 +6,174 @@ import { Aside } from '@astrojs/starlight/components';
 
 Your agent has both short-term and long-term memory. Understanding how these work helps you get the most out of your agent.
 
-## Short-term memory: Context
+## Short-term memory: Sessions
 
-During a conversation, your agent maintains context in `context.jsonl`. This includes:
+During a conversation, your agent maintains context in session files stored at `/data/sessions/`. Each session is a JSONL file containing:
+
 - Your messages
 - Agent responses
 - Tool calls and results
+- Usage statistics
 
-This context persists within a session but may be compacted or cleared between sessions to manage token limits.
+Sessions persist across turns within a conversation. When you send an email, the agent continues from where you left off.
+
+### Session commands
+
+| Command | Effect |
+|---------|--------|
+| `/clear` | Start a new session (old ones preserved) |
+| `/resume` | List recent sessions with hashes |
+| `/resume abc1` | Resume a specific session by hash |
+| `/compact` | Compress session to save tokens |
+
+### Context limits
+
+Each model has a context window limit:
+
+| Model | Context Window |
+|-------|---------------|
+| Haiku | 200k tokens |
+| Sonnet | 200k tokens |
+| Opus | 200k tokens |
+
+When your session approaches the limit, use `/compact` to summarize older messages and free up space.
 
 ## Long-term memory: MEMORY.md
 
 `/data/MEMORY.md` is your agent's persistent memory. It survives:
-- Container restarts
-- Sleep/wake cycles
+- Session changes
+- `/clear` commands  
 - Platform updates
 
 ### What goes in MEMORY.md
 
 The default MEMORY.md includes:
-- Agent identity
-- Owner information
-- Outbox pattern instructions
-- Session notes
 
-You (and your agent) should add:
-- Preferences and working style
-- Project context
-- Important information to remember
-- Links and references
+```markdown
+# Agent Memory
 
-### Updating MEMORY.md
+## Identity
+- Name: buddy
+- Email: buddy@tinyfat.com
+- Owner: you@example.com
 
-**Via email:**
-```
-Remember that I prefer responses in bullet points, not paragraphs.
+## Outbox Instructions
+[How to send emails via /data/outbox/email/]
+
+## Standing Instructions
+[Any persistent instructions you add]
 ```
 
-**Via dashboard:**
-Edit the file directly in the file editor.
+### Customizing MEMORY.md
 
-**Agent self-update:**
-```
-Update your MEMORY.md with notes from our conversation.
-```
+Ask your agent to edit its memory:
 
-## Persistence model
+> "Add to your memory that I prefer concise responses"
 
-### What persists
+Or edit directly:
 
-Everything in `/data`:
-- MEMORY.md
-- Files you create
-- Skills and configurations
-- Conversation history
-- Outbox contents
+> "Show me your MEMORY.md file"
 
-### What doesn't persist
-
-- Installed system packages (reinstall on boot)
-- Files outside `/data` (like `/tmp`)
-- Running processes (stop on sleep)
+Then tell it what to change.
 
 <Aside type="tip">
-  For tools you need repeatedly, ask your agent to create a setup script at `/data/setup.sh` and run it on boot.
+  Use MEMORY.md for persistent preferences, project context, or standing instructions that should apply to all sessions.
 </Aside>
 
-## Token management
+## Configuration: config.json
 
-Claude has context limits. Your agent manages this by:
-1. Keeping recent context in memory
-2. Compacting older context when limits approach
-3. Using MEMORY.md for critical persistent info
+Agent preferences like model selection are stored in `/data/config.json`:
 
-### Best practices
-
-- Keep MEMORY.md focused and concise
-- Use specific file references instead of copying content
-- Ask your agent to summarize long conversations
-- Clear old context files if they grow too large
-
-## Session continuity
-
-When your agent wakes up:
-1. Reads MEMORY.md for context
-2. Loads recent conversation from context.jsonl
-3. Resumes where it left off
-
-When sleeping:
-1. Context is preserved in context.jsonl
-2. All files saved to volume
-3. Next wake restores state
-
-## Practical examples
-
-### Teaching preferences
-
-```
-Add to your memory: When I ask for code, always include comments 
-explaining the key parts. I prefer Python over JavaScript when either works.
+```json
+{
+  "model": "haiku"
+}
 ```
 
-### Maintaining project context
+Changed via `/model haiku|sonnet|opus` command.
+
+## Storage location
+
+All agent data lives in R2 storage:
 
 ```
-Update MEMORY.md with this project context:
-- Project: Website redesign
-- Stack: Next.js, Tailwind, Supabase
-- Current phase: Building dashboard
-- Key decision: Using server components
+agents/{agent_id}/
+├── MEMORY.md           # Long-term memory
+├── config.json         # Preferences
+├── sessions/
+│   └── {id}.jsonl      # Session files
+├── outbox/
+│   ├── email/          # Pending emails
+│   ├── sent/           # Sent emails
+│   └── failed/         # Failed emails
+└── events/
+    └── {ts}.jsonl      # Run events
 ```
 
-### Creating reference documents
+Each agent has isolated storage — agents can't see each other's data.
 
-Instead of loading everything into MEMORY.md:
+## Context compaction
 
-```
-Create a file at /data/references/api-docs.md with the API documentation 
-for our project. Reference this file when I ask about the API.
-```
+When your session gets large, use `/compact` to reduce token usage:
 
-## Troubleshooting
+1. The agent summarizes the conversation history
+2. Old messages are replaced with the summary
+3. Recent messages are preserved
+4. You continue with full context of what happened
 
-### Agent forgot something
-
-1. Check if it's in MEMORY.md
-2. Ask the agent to re-read MEMORY.md
-3. Add the missing info explicitly
-
-### Context seems stale
+### Custom compaction focus
 
 ```
-Read your MEMORY.md and context.jsonl. What do you remember about our project?
+/compact focus on the code changes we discussed
 ```
 
-### Memory getting cluttered
+Tells the agent what to prioritize in the summary.
+
+## Cache hits
+
+Claude supports prompt caching. When parts of your context match previous requests, you get cache hits:
+
+- **Cache read** — Free tokens from cache
+- **Cache write** — Tokens written to cache (cheaper than input)
+
+The session footer shows cache stats:
 
 ```
-Clean up your MEMORY.md. Keep only:
-- Your identity section
-- My key preferences  
-- Current project context
-
-Archive old notes to /data/archive/notes-2024-12.md
+R663k W37k
 ```
+
+R = cache read, W = cache write. High cache read = cheaper turns.
+
+## Data portability
+
+Your data is yours:
+
+1. **View anytime** — Ask your agent to show files
+2. **Export** — Download from R2 (contact support)
+3. **Self-host** — Run your own TinyFat instance
+
+We don't lock you in.
+
+## Best practices
+
+### Use MEMORY.md for
+
+- Persistent preferences
+- Project context that spans sessions
+- Standing instructions
+- Important information to always remember
+
+### Use sessions for
+
+- Active conversations
+- Work in progress
+- Temporary context
+
+### Keep MEMORY.md focused
+
+Don't dump everything in MEMORY.md. It's read every turn, so keep it concise and relevant.
 
 ## Next steps
 
-- [Agent workspace](/guides/workspace/) — Full filesystem guide
-- [Architecture](/concepts/architecture/) — How it all connects
+- [Agent Workspace](/guides/workspace/) — Full filesystem layout
+- [Memory Bank Pattern](/guides/memory-bank/) — Organized project knowledge

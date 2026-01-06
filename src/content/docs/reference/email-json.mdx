@@ -16,6 +16,14 @@ This is the complete reference for the email JSON format used in the outbox patt
   "body": "Plain text email body",
   "in_reply_to": "<message-id@example.com>",
   "references": "<msg1@example.com> <msg2@example.com>",
+  "attachments": [
+    {
+      "filename": "report.pdf",
+      "content": "base64-encoded-content"
+    }
+  ],
+  "log": "attachment",
+  "log_content": "Custom log content",
   "status": "pending"
 }
 ```
@@ -30,37 +38,11 @@ Array of recipient email addresses.
 "to": ["one@example.com", "two@example.com"]
 ```
 
-### subject (required)
-
-Email subject line. String.
-
-```json
-"subject": "Re: Your question about the project"
-```
-
-### body (required)
-
-Plain text email body. Supports newlines with `\n`.
-
-```json
-"body": "Hello,\n\nThis is the first paragraph.\n\nThis is the second.\n\nBest,\nYour Agent"
-```
-
-### status (required)
-
-Must be `"pending"` for the outbox watcher to pick it up.
-
-```json
-"status": "pending"
-```
-
-After processing:
-- Sent emails: `"status": "sent"`
-- Failed emails: `"status": "failed"` with `"error"` field
+At least one recipient is required.
 
 ### cc (optional)
 
-Array of CC recipients.
+Array of CC (carbon copy) recipients.
 
 ```json
 "cc": ["manager@example.com"]
@@ -68,99 +50,230 @@ Array of CC recipients.
 
 ### bcc (optional)
 
-Array of BCC recipients.
+Array of BCC (blind carbon copy) recipients.
 
 ```json
 "bcc": ["archive@example.com"]
 ```
 
-### in_reply_to (optional)
+### subject (required)
 
-Message-ID of the email being replied to. Enables threading.
+Email subject line. Plain text string.
 
 ```json
-"in_reply_to": "<CABx123abc456@mail.gmail.com>"
+"subject": "Re: Your question about APIs"
 ```
+
+For replies, include "Re: " prefix to maintain threading.
+
+### body (required)
+
+Email body. Plain text string.
+
+```json
+"body": "Hello!\n\nHere's the information you requested.\n\nBest,\nYour Agent"
+```
+
+Use `\n` for newlines. HTML is not supported.
+
+### in_reply_to (optional)
+
+Message-ID of the email being replied to. Used for threading.
+
+```json
+"in_reply_to": "<CAG+abc123@mail.gmail.com>"
+```
+
+Include angle brackets. This header tells email clients which message you're replying to.
 
 ### references (optional)
 
-Space-separated list of Message-IDs in the thread chain.
+Space-separated list of Message-IDs in the thread. Used for threading.
 
 ```json
-"references": "<CABx111@mail.gmail.com> <CABx222@mail.gmail.com>"
+"references": "<CAG+first@mail.gmail.com> <CAG+second@mail.gmail.com>"
 ```
+
+Should include all Message-IDs in the thread, oldest first.
+
+### attachments (optional)
+
+Array of file attachments.
+
+```json
+"attachments": [
+  {
+    "filename": "report.pdf",
+    "content": "JVBERi0xLjQKJeLjz9..."
+  },
+  {
+    "filename": "data.csv",
+    "content": "bmFtZSxhZ2UKQWxpY2..."
+  }
+]
+```
+
+Each attachment has:
+- `filename` — Name shown to recipient
+- `content` — Base64-encoded file contents
+
+### log (optional)
+
+Controls session log inclusion. Values:
+- `"attachment"` — Include log as attachment
+- `"inline"` — Include log in email body
+- `"none"` — No log (default)
+
+```json
+"log": "attachment"
+```
+
+### log_content (optional)
+
+Custom content for the log (when `log` is set).
+
+```json
+"log_content": "Session summary: discussed API integration..."
+```
+
+### status (required)
+
+Always set to `"pending"` when creating the file.
+
+```json
+"status": "pending"
+```
+
+The platform updates this to `"sent"` or `"failed"` after processing.
 
 ## Examples
 
-### Simple email
+### Simple reply
 
 ```json
 {
-  "to": ["friend@example.com"],
-  "subject": "Quick update",
-  "body": "Just wanted to let you know the task is complete.",
+  "to": ["user@example.com"],
+  "subject": "Re: Question",
+  "body": "The answer is 42.",
+  "in_reply_to": "<original-msg-id@example.com>",
   "status": "pending"
 }
 ```
 
-### Reply with threading
+### Email with attachment
 
 ```json
 {
-  "to": ["boss@example.com"],
-  "subject": "Re: Project status",
-  "body": "The project is on track. Here's the summary:\n\n- Task 1: Complete\n- Task 2: In progress\n- Task 3: Starting tomorrow",
-  "in_reply_to": "<original-message-id@mail.example.com>",
+  "to": ["user@example.com"],
+  "subject": "Report attached",
+  "body": "Please find the report attached.\n\nLet me know if you have questions.",
+  "attachments": [
+    {
+      "filename": "monthly-report.pdf",
+      "content": "JVBERi0xLjQK..."
+    }
+  ],
   "status": "pending"
 }
 ```
 
-### Multiple recipients with CC
+### Multi-recipient with CC
 
 ```json
 {
-  "to": ["team-lead@example.com"],
-  "cc": ["team@example.com", "manager@example.com"],
-  "subject": "Weekly report",
-  "body": "Here's the weekly update...",
+  "to": ["team@example.com"],
+  "cc": ["manager@example.com", "archive@example.com"],
+  "subject": "Weekly Update",
+  "body": "Here's the weekly summary...",
+  "status": "pending"
+}
+```
+
+### Threaded reply
+
+```json
+{
+  "to": ["user@example.com"],
+  "subject": "Re: Project Discussion",
+  "body": "Good point! Let me address each item...",
+  "in_reply_to": "<CAG+latest@mail.gmail.com>",
+  "references": "<CAG+first@mail.gmail.com> <CAG+second@mail.gmail.com> <CAG+latest@mail.gmail.com>",
   "status": "pending"
 }
 ```
 
 ## File naming
 
-Any `.json` filename works. Recommended pattern:
+Save JSON files to `/data/outbox/email/` with unique names:
 
-```
-{timestamp}-{description}.json
-```
+- Timestamp: `1704379200000.json`
+- UUID: `a1b2c3d4-e5f6-7890-abcd-ef1234567890.json`
+- Sequential: `email-001.json`
 
-Examples:
-- `1703808000-reply.json`
-- `1703808001-status-update.json`
-- `response-to-john.json`
+The agent typically uses timestamps.
 
-## Processing order
+## Processing
 
-Files are processed in alphabetical order. Use timestamp prefixes for predictable ordering.
+After the agent exits:
 
-## Error handling
+1. Queue worker lists `/data/outbox/email/`
+2. Reads each `.json` file
+3. Appends session footer to body
+4. Sends via Resend API
+5. Moves file to `sent/` or `failed/`
 
-Failed emails are moved to `/data/outbox/failed/` with an error field:
+Files are processed in creation order.
+
+## After sending
+
+### sent/
 
 ```json
 {
-  "to": ["invalid@"],
-  "subject": "Test",
-  "body": "Test body",
-  "status": "failed",
-  "error": "Invalid recipient email address"
+  ...original fields...,
+  "status": "sent",
+  "sent_at": "2026-01-04T12:00:00Z",
+  "resend_id": "re_abc123"
 }
 ```
 
-## Limits
+### failed/
 
-- **Recipients:** Max 50 per email
-- **Subject:** Max 998 characters
-- **Body:** Max 10MB (plain text)
-- **Rate:** ~100 emails/hour per agent
+```json
+{
+  ...original fields...,
+  "status": "failed",
+  "error": "Invalid recipient: bad@invalid",
+  "failed_at": "2026-01-04T12:00:00Z"
+}
+```
+
+## Session footer
+
+The platform automatically appends:
+
+```
+---
+[buddy:a1b2 | ↑38 ↓5.0k R663k W37k $0.687 18.7%/200k | claude-haiku-4-5]
+```
+
+You don't need to add this — it's injected during processing.
+
+## Tips
+
+### Encoding attachments
+
+```python
+import base64
+
+with open('report.pdf', 'rb') as f:
+    content = base64.b64encode(f.read()).decode('utf-8')
+```
+
+### Preserving threading
+
+Always include `in_reply_to` and `references` when replying. The platform provides these in the input message.
+
+### Multiple emails
+
+You can write multiple files to the outbox. They'll all be sent.

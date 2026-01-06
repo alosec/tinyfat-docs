@@ -4,7 +4,7 @@ description: Send your first email to your TinyFat agent.
 ---
 import { Steps, Aside, Code } from '@astrojs/starlight/components';
 
-Now that your agent is set up, let's send your first email.
+Now that your agent is set up, let's send your first email and explore what your agent can do.
 
 ## Before you start
 
@@ -22,65 +22,138 @@ Make sure you've:
 
 2. **Compose a new email**
    
-   - **To:** `yourname@tinyfat.com` (your agent's email)
+   - **To:** `yourname@tinyfat.com` (your agent's email from the dashboard)
    - **Subject:** `Hello!`
    - **Body:** `Hi there! What can you do?`
 
 3. **Send it**
    
-   Your agent will wake up, process your message, and reply.
+   Hit send and wait 10-30 seconds.
 
-4. **Wait for the response**
+4. **Check your inbox**
    
-   First response may take 30-60 seconds while the container boots. Subsequent responses are faster.
+   You should receive a response from your agent explaining its capabilities.
 
 </Steps>
 
-<Aside type="note">
-  Your agent's first response will be slower because the container needs to start. After that, it stays warm for a while before sleeping again.
-</Aside>
-
 ## Understanding the response
 
-Your agent will reply from `yourname@tinyfat.com`. The response comes from the platform's email system (Resend), so threading works normally in your email client.
+Your agent's reply will include:
 
-## Allowed senders
+1. **The response** — Answer to your question
+2. **Session footer** — Stats about this interaction
 
-By default, only **your email** (the one you signed up with) can message your agent. This prevents spam and unauthorized access.
-
-To allow others to email your agent, add them in the dashboard under **Settings → Allowed Senders**.
-
-## What to try next
-
-### Ask for help
+Example footer:
 ```
-What can you help me with?
+---
+[buddy:a1b2 | ↑38 ↓5.0k R663k W37k $0.687 18.7%/200k | claude-haiku-4-5]
 ```
 
-### Have it remember something
+This shows:
+- `buddy:a1b2` — Agent name and session hash
+- `↑38 ↓5.0k` — Tokens in/out
+- `$0.687` — Cost for this turn
+- `claude-haiku-4-5` — Model used
+
+## Try some examples
+
+### Ask a question
 ```
-Remember that my favorite color is blue and I prefer concise responses.
+What's the capital of France?
 ```
 
-### Ask it to check its skills
+### Do some math
 ```
-What skills do you have installed? List them with brief descriptions.
-```
-
-### Give it a task
-```
-Create a file called notes.md with a summary of our conversation so far.
+Calculate 15% tip on $47.50
 ```
 
-## Tips for effective emails
+### Get creative
+```
+Write a haiku about email
+```
 
-1. **Be specific** — "Summarize this article: [URL]" beats "Read this"
-2. **One task at a time** — Complex requests work better as follow-ups  
-3. **Check the workspace** — Your agent creates files you can view in the dashboard
-4. **Use MEMORY.md** — Ask your agent to update its memory for persistent context
+### Use tools
+```
+Search the web for recent AI news
+```
+(Requires Brave Search API key in settings)
+
+## Email commands
+
+Control your agent with special commands:
+
+### Check your model
+**Subject:** `/model`
+
+Returns your current model and options.
+
+### Switch to a faster model
+**Subject:** `/model haiku`
+
+Haiku is the fastest and cheapest option.
+
+### Start fresh
+**Subject:** `/clear`
+
+Starts a new session (preserves history for `/resume`).
+
+### See past sessions
+**Subject:** `/resume`
+
+Lists recent sessions you can continue.
+
+## What's happening behind the scenes?
+
+When you send an email:
+
+1. **Resend** receives it and notifies TinyFat
+2. **Platform** validates you're an allowed sender
+3. **Queue worker** starts your agent's container
+4. **Container** mounts your R2 storage at `/data`
+5. **Agent** reads your email from `/inbox/input.json`
+6. **Agent** thinks, uses tools if needed
+7. **Agent** writes response to `/data/outbox/email/`
+8. **Platform** sends the email via Resend
+9. **You** get the response
+
+All this happens in 10-30 seconds!
+
+## Tips for better results
+
+### Be specific
+Instead of "help me with code", try "debug this Python function that's returning None".
+
+### Provide context
+The agent reads MEMORY.md each turn. For recurring context, add it there.
+
+### Use commands
+`/model sonnet` for complex tasks, `/model haiku` for simple ones.
+
+### Check the footer
+Watch token usage and costs. Use `/compact` if context gets large.
+
+## Troubleshooting
+
+### No response after 2 minutes
+
+1. Check your spam folder
+2. Verify your email is in allowed senders (Dashboard → Settings)
+3. Check the dashboard for error messages
+
+### Response seems wrong
+
+1. Try `/clear` to start fresh
+2. Be more specific in your request
+3. Check if the agent is using the right model (`/model`)
+
+### High costs
+
+1. Switch to Haiku for simple tasks (`/model haiku`)
+2. Use `/compact` to reduce context size
+3. Don't send unnecessary follow-up emails
 
 ## Next steps
 
-- [How email works](/guides/email/) — Understand the outbox pattern
-- [Agent workspace](/guides/workspace/) — Explore your agent's filesystem
-- [Skills & tools](/guides/skills/) — See what's pre-installed
+- [Email Communication](/guides/email/) — Full guide to email features
+- [Agent Workspace](/guides/workspace/) — Understand your agent's storage
+- [Skills & Tools](/guides/skills/) — What your agent can do

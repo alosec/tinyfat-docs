@@ -1,25 +1,25 @@
 ---
 title: Agent Workspace
-description: Understanding your agent's filesystem and memory.
+description: Understanding your agent's filesystem and storage.
 ---
 import { Aside } from '@astrojs/starlight/components';
 
-Your agent has a persistent filesystem at `/data`. Files here survive container restarts.
+Your agent has persistent storage mounted at `/data`. Files here survive between conversations and container restarts.
 
 ## Directory structure
 
 ```
 /data
 ├── MEMORY.md           # Agent's persistent memory
-├── context.jsonl       # Conversation history
-├── CEMAIL/             # Email channel data
+├── config.json         # Agent preferences (model, etc.)
+├── sessions/
+│   └── {id}.jsonl      # Conversation history files
 ├── outbox/
 │   ├── email/          # Pending emails to send
 │   ├── sent/           # Successfully sent emails
 │   └── failed/         # Failed email attempts
-└── skills/
-    ├── pi-skills/      # Core skills from pi-mono
-    └── tiny-skills/    # TinyFat platform skills
+└── events/
+    └── {timestamp}.jsonl  # Run events for dashboard
 ```
 
 ## MEMORY.md
@@ -28,105 +28,134 @@ This is your agent's brain. It persists across sessions and contains:
 
 - Agent identity and configuration
 - Owner information
-- Instructions for the outbox pattern
-- Working notes and session logs
+- Outbox pattern instructions
+- Custom context you want the agent to remember
 
-### Editing MEMORY.md
-
-Your agent can update its own memory:
-
-```
-"Remember that I prefer bullet points over paragraphs."
-```
-
-You can also edit it directly through the dashboard's file editor.
-
-### What to put in MEMORY.md
-
-- Preferences and working style
-- Project context and goals
-- Important dates or deadlines
-- Links to frequently accessed resources
-- Notes from previous sessions
-
-## The outbox directory
-
-Your agent sends emails by writing JSON files to `/data/outbox/email/`. See [The Outbox Pattern](/concepts/outbox/) for details.
-
-## Skills directory
-
-Pre-installed skills live in `/data/skills/`:
-
-### pi-skills
-
-Core skills from the pi-mono project:
-- Browser automation
-- Google CLIs (Gmail, Calendar, Drive)
-- Brave search
-- Beads issue tracking
-
-### tiny-skills
-
-TinyFat platform skills:
-- Firecrawl web scraping
-- Linear issue tracking
-- Notion integration
-- Slack API
+The agent reads this file at the start of every turn.
 
 <Aside type="tip">
-  Each skill has a SKILL.md or README.md explaining how to use it. Ask your agent to list its skills!
+  Edit MEMORY.md to customize your agent's personality, add standing instructions, or store important information.
 </Aside>
 
-## Context file
+## config.json
 
-`context.jsonl` stores conversation history in JSON Lines format. Each line is a message or tool result.
+Stores agent preferences like model selection:
 
-The agent uses this to maintain context across the session. It's automatically managed by pi-mono.
-
-## File persistence
-
-All files in `/data` persist across:
-- Container restarts
-- Sleep/wake cycles
-- Platform updates
-
-Files outside `/data` (like `/tmp` or `/app`) are ephemeral.
-
-## Accessing files
-
-### Dashboard file editor
-
-1. Go to your dashboard
-2. Click on files in the sidebar
-3. View and edit directly in the browser
-
-### Via email
-
-Ask your agent to read or write files:
-
-```
-"Create a file called projects.md listing my current projects."
-"What's in MEMORY.md?"
-"Show me the contents of /data/skills/tiny-skills/README.md"
+```json
+{
+  "model": "haiku"
+}
 ```
 
-### Via the API
+You can change the model via email:
+- `/model haiku` — Fastest, cheapest
+- `/model sonnet` — Balanced
+- `/model opus` — Most capable
 
-Files are accessible through the dashboard API (authenticated).
+## Sessions
+
+Each conversation is stored as a JSONL file in `/data/sessions/`. Sessions contain:
+
+- Your messages
+- Agent responses
+- Tool calls and results
+- Usage statistics
+
+### Managing sessions
+
+| Command | Effect |
+|---------|--------|
+| `/clear` | Start a new session (preserves old ones) |
+| `/resume` | List recent sessions with hashes |
+| `/resume abc1` | Resume session by hash |
+| `/compact` | Compress context to reduce token usage |
+
+<Aside type="note">
+  `/clear` doesn't delete anything — it just starts a fresh session. Your previous sessions remain available via `/resume`.
+</Aside>
+
+## Outbox
+
+The outbox is how your agent sends emails. Instead of calling APIs directly, the agent writes JSON files:
+
+```
+/data/outbox/
+├── email/          # Pending - agent just wrote these
+├── sent/           # Successfully sent by platform
+└── failed/         # Failed to send (will retry)
+```
+
+Example outbox file:
+```json
+{
+  "to": ["user@example.com"],
+  "subject": "Re: Your question",
+  "body": "Here's what I found...",
+  "in_reply_to": "<original-message-id>",
+  "status": "pending"
+}
+```
+
+See [Outbox Pattern](/concepts/outbox/) for details.
+
+## Events
+
+The `/data/events/` directory stores real-time events from agent runs. The dashboard uses these to show:
+
+- Tool calls in progress
+- Streaming text output
+- Errors and completions
+
+## Pre-installed tools
+
+Your agent's container includes:
+
+**Core utilities:**
+- `git`, `curl`, `wget`, `jq`, `yq`
+- `ripgrep` (`rg`), `fd-find` (`fdfind`), `tree`
+- `sqlite3`, `psql` (PostgreSQL client)
+- `zip`, `unzip`, `tmux`, `less`
+
+**Python:**
+- `python3` with `uv` (fast package manager)
+- `fpdf2` for PDF generation
+
+**Developer tools:**
+- `gh` (GitHub CLI)
+- Node.js 22 LTS
+
+## Skills
+
+Skills are documentation files that teach your agent how to use specific tools. They're cloned to `/opt/skills/` in the container:
+
+- `/opt/skills/pi-skills/` — Core skills from pi-mono
+- `/opt/skills/tiny-skills/` — TinyFat platform skills
+
+See [Skills & Tools](/guides/skills/) for the full list.
 
 ## Storage limits
 
-Each agent has a 1GB volume. This is plenty for:
-- Text files and documents
-- Skills and scripts
-- Conversation history
+Your agent's R2 storage is currently unlimited during launch. In the future:
 
-Not recommended:
-- Large binary files
-- Media storage
-- Databases (use external services)
+- **Free tier:** TBD
+- **Tiny tier ($5/mo):** TBD
+
+Files in the outbox are automatically cleaned up after successful sending.
+
+## Accessing files
+
+You can view and edit files through:
+
+1. **Email** — Ask your agent to read/write files
+2. **Dashboard** — File browser in the web UI (coming soon)
+3. **Direct R2** — Export your data anytime
+
+<Aside type="caution">
+  Don't store sensitive credentials in plain text. Use environment variables or the encrypted secrets feature in the dashboard.
+</Aside>
 
 ## Next steps
 
-- [Skills & tools](/guides/skills/) — What your agent can do
-- [Memory & persistence](/concepts/memory/) — How memory works
+- [Memory Bank Pattern](/guides/memory-bank/) — Organize project knowledge
+- [Skills & Tools](/guides/skills/) — What your agent can do
+- [Email Communication](/guides/email/) — How email works

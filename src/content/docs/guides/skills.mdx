@@ -8,7 +8,7 @@ Your agent comes with pre-installed skills that extend its capabilities. Skills 
 
 ## Pre-installed skills
 
-Skills are installed at `/data/skills/` in two directories:
+Skills are installed at `/opt/skills/` in two directories:
 
 ### pi-skills
 
@@ -18,150 +18,148 @@ Core skills from the [pi-mono](https://github.com/badlogic/pi-mono) project:
 |-------|-------------|
 | **beads** | Issue tracking with Beads CLI |
 | **brave-search** | Web search via Brave API |
-| **browser** | Browser automation with Puppeteer |
-| **google-calendar** | Google Calendar CLI |
-| **google-drive** | Google Drive CLI |
-| **google-mail** | Gmail CLI |
+| **browser** | Browser automation (requires headed environment) |
+| **google-calendar** | Google Calendar CLI (requires setup) |
+| **google-drive** | Google Drive CLI (requires setup) |
+| **google-mail** | Gmail CLI (requires setup) |
 
 ### tiny-skills
 
-TinyFat platform skills from [tiny-skills](https://github.com/alosec/tiny-skills):
+TinyFat platform-specific skills:
 
 | Skill | Description |
 |-------|-------------|
-| **firecrawl** | Web scraping with JavaScript rendering |
-| **linear** | Linear issue tracking |
-| **notion** | Notion pages and databases |
-| **slack** | Slack API integration |
+| **email-outbox** | How to send emails via the outbox pattern |
+| **workspace** | Understanding the agent's filesystem |
 
-## Using skills
+## Built-in tools
 
-### Ask your agent what it can do
-
-```
-What skills do you have? Give me a brief summary of each.
-```
-
-### Request a specific skill
-
-```
-Use firecrawl to scrape https://example.com and summarize the content.
-```
-
-### Check skill documentation
-
-```
-Show me the SKILL.md file for the firecrawl skill.
-```
-
-## Skill details
-
-### Firecrawl
-
-Scrape web pages that require JavaScript rendering. Great for:
-- Dynamic websites
-- SPAs (Single Page Apps)
-- Pages behind client-side loading
-
-Requires: `FIRECRAWL_API_KEY` (get one at [firecrawl.dev](https://firecrawl.dev))
-
-### Linear
-
-Manage Linear issues directly. Your agent can:
-- List issues and projects
-- Create new issues
-- Update issue status
-- Add comments
-
-Requires: Linear API key in your agent's environment.
-
-### Notion
-
-Read and write Notion pages. Your agent can:
-- Search pages
-- Read page content
-- Create new pages
-- Update existing content
-
-Requires: Notion integration token.
-
-### Slack
-
-Post messages and read channels. In hybrid mode, your agent can:
-- Respond to @mentions
-- Post to channels
-- Search message history
-
-Requires: Slack bot and app tokens (configured in dashboard).
-
-## Built-in capabilities
-
-Beyond skills, your agent has these built-in capabilities:
+Your agent has access to core tools without any additional setup:
 
 ### File operations
-
-```
-Create a file called notes.md with the following content...
-Read the contents of /data/MEMORY.md
-List all files in /data/skills/
-```
+- Read and write files anywhere in `/data`
+- Create directories
+- List directory contents
 
 ### Shell commands
+- Run any Linux command via bash
+- Access to common utilities (git, curl, jq, etc.)
 
-```
-Run `ls -la /data` and show me the output.
-Install jq if it's not already installed.
+### Code editing
+- Surgical file edits (find and replace)
+- Full file rewrites
+
+## Container utilities
+
+The sandbox container includes these pre-installed tools:
+
+**Core:**
+- `git` — Version control
+- `curl`, `wget` — HTTP requests
+- `jq`, `yq` — JSON/YAML processing
+- `ripgrep` (`rg`) — Fast text search
+- `fd-find` (`fdfind`) — Fast file finding
+- `tree`, `less` — File browsing
+
+**Databases:**
+- `sqlite3` — SQLite client
+- `psql` — PostgreSQL client
+
+**Python:**
+- `python3` — Python interpreter
+- `uv` — Fast Python package manager
+- `fpdf2` — PDF generation (pre-installed)
+
+**Developer:**
+- `gh` — GitHub CLI
+- `tmux` — Terminal multiplexer
+- Node.js 22 LTS
+
+## Adding capabilities
+
+### Install Python packages
+
+```bash
+uv pip install pandas matplotlib
 ```
 
-### Code execution
+Packages persist in your agent's storage.
 
-```
-Write a Python script that counts words in MEMORY.md and run it.
+### Install Node packages
+
+```bash
+npm install -g some-package
 ```
 
-<Aside type="caution">
-  Your agent has full shell access. It can install packages and run commands. This is powerful but requires trust.
+<Aside type="note">
+  Installed packages persist across turns but may not survive container updates. For critical dependencies, add installation to your MEMORY.md instructions.
 </Aside>
 
-## Adding new skills
+### API keys
 
-### Install a skill repository
+Some skills require API keys:
 
+| Skill | Key needed | How to add |
+|-------|------------|------------|
+| Brave Search | `BRAVE_API_KEY` | Dashboard → Settings → API Keys |
+| Google APIs | OAuth setup | Contact support |
+
+## Skill loading
+
+Your agent automatically has access to skill documentation. When you ask about a capability, the agent reads the relevant skill file to understand how to use it.
+
+Example prompt:
+> "Search the web for recent news about AI agents"
+
+The agent will:
+1. Recognize this needs web search
+2. Load the brave-search skill
+3. Execute the search
+4. Return results
+
+## PDF generation
+
+Your agent can create PDFs using Python's fpdf2 library:
+
+```python
+from fpdf import FPDF
+
+pdf = FPDF()
+pdf.add_page()
+pdf.set_font("helvetica", size=12)
+pdf.cell(200, 10, text="Hello World!", new_x="LMARGIN", new_y="NEXT")
+pdf.output("/data/output.pdf")
 ```
-Clone https://github.com/someone/their-skills into /data/skills/
-```
 
-### Create a custom skill
+The agent can then email you the PDF as an attachment.
 
-Create a SKILL.md file in `/data/skills/my-skill/`:
+## Limitations
+
+### No browser automation
+The sandbox doesn't have a display server. Browser-based skills (Puppeteer, Playwright) won't work. Use API-based alternatives like Brave Search or Firecrawl.
+
+### No Docker
+Can't run Docker inside the sandbox (no nested containers).
+
+### Limited network
+Outbound HTTP is allowed, but some services may be blocked.
+
+## Custom skills
+
+Want to add custom skills? Create markdown files in your MEMORY.md with instructions:
 
 ```markdown
----
-name: my-skill
-description: What this skill does
----
+## My Custom Tool
 
-# My Custom Skill
-
-Instructions for the agent on how to use this skill...
+When asked to do X, follow these steps:
+1. ...
+2. ...
 ```
 
-## API keys for skills
-
-Some skills require API keys. Configure them in the dashboard:
-
-1. Go to **Settings → API Keys**
-2. Add the key for the service
-3. Your agent can now use that skill
-
-Current supported keys:
-- Anthropic (required)
-- Firecrawl
-- Linear
-- Notion
-- Slack
+The agent will incorporate these instructions into its behavior.
 
 ## Next steps
 
-- [Architecture](/concepts/architecture/) — How everything connects
-- [The outbox pattern](/concepts/outbox/) — How your agent sends email
+- [Agent Workspace](/guides/workspace/) — Filesystem layout
+- [Memory Bank](/guides/memory-bank/) — Organizing knowledge
+- [Beads Todo System](/guides/beads/) — Issue tracking

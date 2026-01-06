@@ -10,11 +10,28 @@ TinyFat is built on open-source components with a simple, transparent architectu
 | Component | Technology | Purpose |
 |-----------|------------|---------|
 | Agent runtime | [pi-mono](https://github.com/badlogic/pi-mono) | Claude-powered agent framework |
-| Container | [Fly.io](https://fly.io) Machines | Linux containers with volumes |
+| Container | [Cloudflare Sandbox SDK](https://developers.cloudflare.com/containers/how-to/sandbox-sdk/) | Secure container execution |
+| Storage | Cloudflare R2 | Per-agent persistent storage |
 | Platform | [Astro](https://astro.build) on Cloudflare Pages | Dashboard, API, webhooks |
+| Queue | Cloudflare Queues | Job orchestration |
 | Email | [Resend](https://resend.com) | Inbound/outbound email |
 | Database | [Supabase](https://supabase.com) | User accounts, agent config |
-| Router | Node.js on VPS | WebSocket relay, outbox processing |
+
+## The key insight
+
+**Agent identity lives entirely in R2 storage, not the container.**
+
+All agents share the same stateless container image. Each agent gets temporary R2 credentials scoped to their storage prefix (`agents/{id}/`). The container mounts that prefix at `/data`. Your agent sees only its files.
+
+```
+┌─────────────────────────────────────────────┐
+│           Shared Sandbox Container          │
+│  (stateless - same code for all agents)     │
+├─────────────────────────────────────────────┤
+│  Agent A: r2:bucket/agents/a/ → /data       │
+│  Agent B: r2:bucket/agents/b/ → /data       │
+└─────────────────────────────────────────────┘
+```
 
 ## Request flow
 
@@ -24,68 +41,77 @@ TinyFat is built on open-source components with a simple, transparent architectu
 1. You send email to yourname@tinyfat.com
 2. Resend receives it, sends webhook to platform
 3. Platform validates sender, looks up agent
-4. Platform calls Router to wake container
-5. Router starts Fly Machine if sleeping
-6. Agent container boots, connects to Router via WebSocket
-7. Router delivers email as Slack-format message
-8. Agent processes, writes response to /data/outbox/email/
-9. Router detects outbox file, reads content
-10. Platform sends email via Resend
+4. Platform enqueues job to sandbox-queue
+5. Queue worker generates scoped R2 credentials
+6. Worker calls sandbox-spike with agent config
+7. Sandbox mounts agent's R2 prefix at /data
+8. step-mom runs one agent turn via pi-mono
+9. Agent writes response to /data/outbox/email/
+10. Worker reads outbox, sends email via Resend
 11. You receive reply
 ```
 
-### Dashboard → Agent
+### One-turn execution
 
-```
-1. You send message in dashboard chat
-2. Message goes to Router via WebSocket
-3. Router wakes container if needed
-4. Agent receives message, processes
-5. Response streams back through Router
-6. Dashboard displays response
-```
+Each email triggers exactly one agent turn:
+
+1. Read input
+2. Think + use tools
+3. Write output
+4. Exit
+
+This avoids complexity of long-running processes, connection management, and state drift.
 
 ## Components
 
-### Fly Machines
+### sandbox-spike (CF Worker + Container)
 
-Each agent runs in a dedicated Fly Machine:
-- Alpine Linux with Node.js
-- 1GB persistent volume at `/data`
-- Scale-to-zero when idle
-- Wake-on-demand via API
+The core execution engine:
+- Receives job from queue
+- Mounts R2 storage with scoped credentials
+- Runs `step-mom` (the agent harness)
+- Reads outbox files and returns emails
 
-Containers include:
-- pi-mono (the agent runtime)
-- Pre-installed CLIs (git, jq, ripgrep, etc.)
-- Skills in `/data/skills/`
+### step-mom (Container Agent)
 
-### Router
+TypeScript harness running inside the container:
+- Reads input from `/inbox/input.json`
+- Creates AgentSession using pi-mono
+- Runs one turn via `session.prompt()`
+- Writes emails to `/data/outbox/email/*.json`
+- Streams events to `/data/events/` for dashboard
 
-The Router bridges containers to the outside world:
-- WebSocket server for agent connections
-- Fake Slack API for email-only mode
-- Outbox watcher (polls `/data/outbox/email/`)
-- Wake-on-demand triggers
+### sandbox-queue (CF Worker)
 
-The Router runs on a VPS at `router.tinyfat.com`.
+Queue consumer that orchestrates execution:
+- Parses commands (`/clear`, `/resume`, `/model`)
+- Calls sandbox-spike to run agent
+- Sends response emails via Resend
+- Tracks job status in Supabase
 
-### Platform (Astro)
+## Storage layout
 
-Handles everything user-facing:
-- Dashboard UI
-- Authentication (Supabase Auth)
-- Agent provisioning (Fly Machines API)
-- Email webhooks (Resend)
-- API endpoints
+Per-agent prefix in R2: `agents/{agent_id}/`
 
-Deployed to Cloudflare Pages.
+```
+agents/{agent_id}/
+├── MEMORY.md           # Agent's persistent memory
+├── config.json         # Agent preferences (model, etc.)
+├── sessions/
+│   └── {id}.jsonl      # Conversation history files
+├── outbox/
+│   ├── email/          # Pending emails (written by agent)
+│   ├── sent/           # Successfully sent
+│   └── failed/         # Failed to send
+└── events/
+    └── {timestamp}.jsonl  # Run events for dashboard
+```
 
 ## Security model
 
 ### Your API key
 
-Your Anthropic API key is encrypted at rest. It's only decrypted when:
+Your Anthropic API key is encrypted at rest using AES-256-GCM. It's only decrypted when:
 - Starting your container
 - Injected as environment variable
 - Never logged or exposed in UI
@@ -96,45 +122,82 @@ Only whitelisted emails can trigger your agent. This prevents:
 - Spam triggering expensive API calls
 - Unauthorized access to your agent
 
+Configure in the dashboard under Settings.
+
 ### Container isolation
 
-Each agent runs in its own container:
-- Separate filesystem
-- Separate network
-- No access to other agents' data
+Each agent run is isolated:
+- Scoped R2 credentials (can't access other agents' data)
+- No network access to internal services
+- Container exits after each turn
 
-:::note
-Containers run with limited privileges. Your agent can't access the host system or other containers.
-:::
+## The outbox pattern
 
-## Scale-to-zero
+Agents don't send emails directly. They write JSON files to `/data/outbox/email/`:
 
-Agents sleep after ~15 minutes of inactivity:
-- Container stops, releases compute
-- Volume persists (your files are safe)
-- First request wakes the container (30-60s cold start)
+```json
+{
+  "to": ["user@example.com"],
+  "subject": "Re: Help request",
+  "body": "Here's what I found...",
+  "in_reply_to": "<message-id>",
+  "status": "pending"
+}
+```
 
-This keeps costs low for idle agents.
+The queue worker reads these and sends via Resend. This provides:
+
+- **Reliability** — If sending fails, the file stays for retry
+- **Auditability** — Every outgoing email is a file you can inspect
+- **Simplicity** — Agent doesn't need email credentials
+
+## Session management
+
+Sessions persist in `/data/sessions/` as JSONL files. Each file contains:
+- Your messages
+- Agent responses  
+- Tool calls and results
+
+Use email commands to manage sessions:
+- `/clear` — Start fresh (old sessions preserved)
+- `/resume` — List available sessions
+- `/resume abc1` — Resume specific session by hash
+
+## Email threading
+
+Responses maintain proper email threading:
+- `In-Reply-To` header set to original `Message-ID`
+- `References` header includes thread chain
+- Gmail/Outlook group replies correctly
+
+## Session footer
+
+Each response includes a footer:
+
+```
+---
+[agent:a1b2 | ↑38 ↓5.0k R663k W37k $0.687 18.7%/200k | claude-haiku-4-5]
+```
+
+Shows: agent name, session hash, tokens in/out, cache stats, cost, context usage, model.
 
 ## Open source
 
-The entire stack is inspectable:
+The entire agent runtime is inspectable:
 
 - **pi-mono:** [github.com/badlogic/pi-mono](https://github.com/badlogic/pi-mono)
 - **pi-skills:** [github.com/badlogic/pi-skills](https://github.com/badlogic/pi-skills)
 - **tiny-skills:** [github.com/alosec/tiny-skills](https://github.com/alosec/tiny-skills)
 
-The platform code (this site, the router) is not currently open source, but the agent runtime is.
-
 ## Running it yourself
 
 Want to self-host? You need:
-- Fly.io account (or any Docker host)
+- Cloudflare account (Workers, R2, Queues)
 - Anthropic API key
 - Email provider (Resend, Postmark, etc.)
-- Domain for email routing
+- Supabase or equivalent for user data
 
-It's not trivial to set up, which is why TinyFat exists. But it's possible, and we won't lock you in.
+The platform code isn't currently open source, but the agent runtime is fully open.
 
 ## Next steps
 

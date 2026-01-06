@@ -4,78 +4,70 @@ description: Chat with your agent directly in the dashboard.
 ---
 import { Aside } from '@astrojs/starlight/components';
 
-The dashboard at [tinyfat.com/dashboard](https://tinyfat.com/dashboard) includes a chat interface. No email or Slack needed.
+The dashboard at [tinyfat.com/dashboard](https://tinyfat.com/dashboard) includes a chat interface for direct interaction with your agent.
 
-## How it works
+<Aside type="note">
+  The web chat interface is coming soon. Currently, the dashboard provides job history and settings management.
+</Aside>
 
-The chat connects directly to your agent's container via WebSocket:
+## Current dashboard features
 
-```
-You type → WebSocket → Router → Agent → Response streams back
-```
+### Job history
 
-Messages appear in real-time as your agent thinks and responds.
+View all email interactions with your agent:
+- Incoming emails and timestamps
+- Agent responses
+- Token usage and costs
+- Error messages if any
 
-## Features
+### Settings
 
-### Streaming responses
+Configure your agent:
+- **API Keys** — Your Anthropic key (encrypted)
+- **Allowed Senders** — Email whitelist
+- **Integrations** — Slack token (Tiny tier)
 
-Watch your agent's response appear word by word. No waiting for the full reply.
+### Status
+
+See your agent's current state:
+- Recent activity
+- Total usage this month
+- Session information
+
+## Planned features
+
+### Live chat
+
+Direct conversation with your agent in the browser:
+- Send messages
+- See streaming responses
+- View tool calls in real time
+
+### File browser
+
+Browse your agent's `/data` directory:
+- View MEMORY.md
+- Check outbox contents
+- Download files
 
 ### Activity drawer
 
-Expand the drawer to see:
+Expand to see detailed execution:
 - Tool calls in progress
+- Command output
 - File operations
-- Command execution
-- Errors and debugging info
 
-### File context
+## Alternative: Email
 
-The file browser is right there. Edit `MEMORY.md`, check the outbox, browse skills — all while chatting.
+Until web chat launches, email is the primary interface:
 
-### Session persistence
+1. Send to `yourname@tinyfat.com`
+2. Agent processes and responds
+3. View history in dashboard
 
-Chat history persists in your browser. Pick up where you left off.
-
-## When to use the web app
-
-- ✅ Active development/debugging
-- ✅ Watching agent behavior in real-time
-- ✅ Editing files alongside conversation
-- ✅ When you need the activity drawer
-
-## Compared to email
-
-| | Web App | Email |
-|---|---------|-------|
-| Response time | Instant streaming | 30-60s (cold) |
-| Visibility | Full activity drawer | Just the reply |
-| File access | Integrated browser | Ask agent to read/write |
-| Mobile | Works but cramped | Native experience |
-
-## Compared to Slack
-
-| | Web App | Slack |
-|---|---------|-------|
-| Team visibility | Just you | Whole channel |
-| Setup | None | Slack app required |
-| Threading | Single conversation | Slack threads |
-| Integration | File browser | Slack context |
-
-<Aside type="tip">
-  Use web app when you're actively working with your agent. Use email or Slack for fire-and-forget tasks.
-</Aside>
-
-## Keyboard shortcuts
-
-| Shortcut | Action |
-|----------|--------|
-| `Cmd/Ctrl + K` | Focus chat input |
-| `Cmd/Ctrl + S` | Save current file |
-| `Esc` | Close panels |
+Email works from any device and maintains full conversation threading.
 
 ## Next steps
 
-- [Dashboard Guide](/guides/dashboard/) — Full dashboard walkthrough
-- [Email Interface](/interfaces/email/) — Async communication
+- [Email Interface](/interfaces/email/) — Primary communication method
+- [Slack Interface](/interfaces/slack/) — Real-time chat (Tiny tier)

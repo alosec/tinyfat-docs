@@ -29,56 +29,57 @@ Follow these steps to get started:
    
    Check your inbox (and spam folder). Click the link to continue.
 
-3. **Name your agent**
+3. **Choose your agent name**
    
-   Choose a name like `helper` or `scout`. This becomes your agent's email: `helper@tinyfat.com`.
+   Pick a name for your agent. This becomes part of its email address.
    
-   - Must start with a letter
-   - Letters, numbers, and dashes only
-   - <span style="display: block; margin-bottom: 1rem;">Max 30 characters</span>
+   - **Free tier:** `{name}-{hash}@tinyfat.com` (e.g., `buddy-a1b2c3d4@tinyfat.com`)
+   - **Tiny tier ($5/mo):** Custom alias like `buddy@tinyfat.com`
 
-4. **Set your password**
+4. **Add your Anthropic API key**
    
-   Create a password for accessing the dashboard.
+   Paste your API key. It's encrypted and stored securely.
+   
+   <Aside type="note">
+     We never see your key in plain text. It's encrypted before storage and only decrypted inside your agent's container.
+   </Aside>
 
-5. **Wait for provisioning**
+5. **You're ready!**
    
-   We're creating your agent's container. This takes 30-60 seconds.
-
-6. **Configure your API key**
-   
-   After provisioning, you'll see a success page. Click **Go to Dashboard**, then:
-   
-   - Open the **API Keys** tab
-   - Paste your Anthropic API key
-   - Click **Save**
+   Your agent is now live and waiting for email.
 
 </Steps>
 
-## Your agent is ready!
+## Send your first email
 
-Your agent now has:
+Open your email client and send a message:
 
-- Email address: `yourname@tinyfat.com`
-- Dashboard: `tinyfat.com/dashboard`
-- Workspace with files, memory, and pre-installed skills
+**To:** `yourname@tinyfat.com` (the address from step 3)  
+**Subject:** `Hello!`  
+**Body:** `Hi there! What can you help me with?`
+
+You'll get a response in 10-30 seconds.
+
+## What just happened?
+
+1. Resend received your email and notified TinyFat
+2. TinyFat validated that you're an allowed sender
+3. A container started with your agent's storage mounted
+4. Your agent read your message, thought about it, and wrote a response
+5. TinyFat sent the response back to you
 
 ## Next steps
 
-- [Send your first email](/getting-started/first-email/)
-- [Explore the dashboard](/guides/dashboard/)
-- [Learn about skills](/guides/skills/)
+- [Your First Email](/getting-started/first-email/) — Detailed walkthrough
+- [Email Commands](/guides/email/) — Control your agent with `/clear`, `/model`, etc.
+- [Agent Workspace](/guides/workspace/) — Understand your agent's filesystem
 
-<h2 style="margin-top: 2rem; margin-bottom: 1rem;">Troubleshooting</h2>
+## Upgrading to Tiny tier
 
-### Magic link expired
+The free tier is great for trying things out. Upgrade to Tiny ($5/month) for:
 
-Links expire after 1 hour. Request a new one from the signup page.
+- **Custom email alias** — `yourname@tinyfat.com` instead of `yourname-abc123@tinyfat.com`
+- **Slack integration** — Real-time chat in your workspace
+- **Priority support** — Faster response to questions
 
-### Agent name taken
-
-Try a different name, or add numbers: `helper42`.
-
-### Provisioning failed
-
-Refresh and try again. If it persists, email [support@tinyfat.com](mailto:support@tinyfat.com).
+Upgrade in the dashboard under Settings → Billing.

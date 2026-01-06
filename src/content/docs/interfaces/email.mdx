@@ -8,61 +8,128 @@ Email is the default interface. No apps to install, works from any device.
 
 ## Your agent's address
 
-Every agent gets: `yourname@tinyfat.com`
+- **Free tier:** `{name}-{hash}@tinyfat.com` (e.g., `buddy-a1b2c3d4@tinyfat.com`)
+- **Tiny tier:** Custom alias like `buddy@tinyfat.com`
 
 This is a real email address. Send from Gmail, Outlook, Apple Mail, your phone — anywhere.
 
 ## How it works
 
 ```
-You send email → Agent wakes up → Agent thinks → Agent replies
+You send email → Platform validates → Agent runs → Agent replies
 ```
 
 1. **You email** `yourname@tinyfat.com`
 2. **Resend** receives it, triggers webhook
-3. **Platform** validates sender, wakes container
-4. **Agent** processes your message
-5. **Agent** writes response to outbox
-6. **Platform** sends the reply
-7. **You** get the email
+3. **Platform** validates sender, enqueues job
+4. **Queue worker** mounts agent's storage, runs container
+5. **Agent** processes your message (one turn)
+6. **Agent** writes response to outbox
+7. **Platform** sends the reply via Resend
+8. **You** get the email
 
-Cold start is 30-60 seconds. Warm containers respond in 10-30 seconds.
+Response time is typically 10-30 seconds.
 
-## Allowed senders
+## Email commands
 
-Only whitelisted emails can trigger your agent. This prevents:
-- Spam burning your API credits
-- Random people accessing your agent
+Control your agent with commands in the subject or body:
 
-Configure in **Dashboard → Settings → Allowed Senders**.
+| Command | Effect |
+|---------|--------|
+| `/clear` | Start fresh session (keeps history) |
+| `/resume` | List recent sessions |
+| `/resume abc1` | Resume specific session |
+| `/compact` | Compress context to save tokens |
+| `/model` | Show current model |
+| `/model haiku` | Switch to Haiku (~$0.001/msg) |
+| `/model sonnet` | Switch to Sonnet (~$0.015/msg) |
+| `/model opus` | Switch to Opus (~$0.075/msg) |
 
-### Wildcards
+## Session footer
 
-- `user@example.com` — Exact match
-- `@yourcompany.com` — Anyone at that domain
+Every response includes stats:
 
-<Aside type="caution">
-  Domain wildcards are powerful. `@gmail.com` would let anyone with Gmail message your agent.
-</Aside>
+```
+---
+[buddy:a1b2 | ↑38 ↓5.0k R663k W37k $0.687 18.7%/200k | claude-haiku-4-5]
+```
 
-## Threading
-
-Replies include proper email headers (`In-Reply-To`, `References`). Threads work correctly in your email client.
-
-Use your email app's Reply button to maintain conversation threads.
+- `buddy:a1b2` — Agent name + session hash (for `/resume`)
+- `↑38 ↓5.0k` — Input/output tokens
+- `R663k W37k` — Cache read/write tokens
+- `$0.687` — Cost this turn
+- `18.7%/200k` — Context usage
+- `claude-haiku-4-5` — Model
 
 ## Attachments
 
-Text attachments work. Large or binary files may be truncated.
+Send files to your agent:
 
-## When to use email
+- **Images:** PNG, JPG, GIF, WebP — agent can analyze
+- **Documents:** PDF, TXT, MD — agent can read
+- **Data:** JSON, CSV — agent can process
 
-- ✅ Async tasks that don't need immediate response
-- ✅ When you're away from a computer
-- ✅ Delegating work you'll check on later
-- ✅ Sending from mobile
+Files are available during the turn at `/inbox/attachments/`.
+
+## Sending email from your agent
+
+Your agent writes emails to `/data/outbox/email/`:
+
+```json
+{
+  "to": ["recipient@example.com"],
+  "subject": "Report ready",
+  "body": "Here's the analysis...",
+  "status": "pending"
+}
+```
+
+The platform picks these up and sends them.
+
+## Threading
+
+Responses thread correctly in email clients:
+
+- `In-Reply-To` links to your message
+- `References` maintains the full chain
+- Gmail, Outlook, Apple Mail all group properly
+
+## Security
+
+### Allowed senders
+
+Only whitelisted addresses can trigger your agent:
+
+- **Exact:** `alice@example.com`
+- **Domain:** `@company.com` (anyone at domain)
+
+Configure in Dashboard → Settings → Allowed Senders.
+
+<Aside type="caution">
+  Be careful with domain wildcards. `@gmail.com` would allow any Gmail user.
+</Aside>
+
+### Webhook verification
+
+Inbound emails are verified using Resend's webhook signatures (Svix). Invalid payloads are rejected.
+
+## Troubleshooting
+
+### No response
+
+1. Check allowed senders list
+2. Verify API key is set
+3. Check dashboard for errors
+
+### Went to spam
+
+Add your agent's address to contacts or mark "not spam".
+
+### Threading broken
+
+Some corporate email systems modify headers. Try a personal email client.
 
 ## Next steps
 
-- [The Outbox Pattern](/concepts/outbox/) — How your agent sends email
-- [Slack Interface](/interfaces/slack/) — Real-time chat option
+- [Email JSON Reference](/reference/email-json/) — Full outbox format
+- [Troubleshooting](/reference/troubleshooting/) — Common issues

@@ -6,6 +6,10 @@ import { Aside, Steps } from '@astrojs/starlight/components';
 
 Connect Slack for real-time conversation. Your agent appears as a bot in your workspace.
 
+<Aside type="note">
+  Slack integration requires the **Tiny tier** ($5/month).
+</Aside>
+
 ## How it works
 
 Your agent joins Slack as a bot user. Mention it to wake it up:
@@ -16,82 +20,118 @@ Your agent joins Slack as a bot user. Mention it to wake it up:
 
 The agent sees the message, processes it, and replies in the thread.
 
+Unlike email (which runs one turn per message), Slack enables back-and-forth conversation in real time.
+
 ## Setup
 
 <Steps>
 
-1. **Create a Slack app**
+1. **Upgrade to Tiny tier**
+   
+   Slack integration is included in the $5/month Tiny plan.
+
+2. **Create a Slack app**
    
    Go to [api.slack.com/apps](https://api.slack.com/apps) and create a new app.
 
-2. **Configure bot permissions**
+3. **Configure bot permissions**
    
    Your bot needs these OAuth scopes:
    - `chat:write` — Send messages
-   - `app_mentions:read` — See @mentions
+   - `app_mentions:read` — See when mentioned
    - `channels:history` — Read channel messages
-   - `channels:read` — List channels
+   - `groups:history` — Read private channel messages
+   - `im:history` — Read direct messages
+   - `users:read` — Look up user info
 
-3. **Install to workspace**
+4. **Install to workspace**
    
-   Install the app and copy the Bot Token (`xoxb-...`).
+   Install the app to your Slack workspace and copy the Bot User OAuth Token.
 
-4. **Add tokens to TinyFat**
+5. **Add token to TinyFat**
    
-   In Dashboard → Settings → Slack, add:
-   - Bot Token
-   - App Token (for Socket Mode)
+   Dashboard → Settings → Integrations → Slack Bot Token
 
-5. **Invite bot to channels**
+6. **Configure webhook URL**
    
-   In Slack: `/invite @yourbot`
+   In your Slack app settings, add Event Subscriptions:
+   - Request URL: `https://tinyfat.com/api/slack/events`
+   - Subscribe to: `app_mention`, `message.im`
 
 </Steps>
 
 ## Features
 
-### Mentions
+### Real-time responses
 
-`@yourbot` wakes your agent and passes the message.
+Unlike email, Slack shows responses as they stream in. You see the agent thinking in real time.
 
-### Threads
+### Thread context
 
-Replies go in threads, keeping channels clean.
-
-### Channel context
-
-Your agent can read recent channel history for context.
+The agent reads the full thread context when replying. Continue conversations naturally.
 
 ### File sharing
 
-Share files in Slack — your agent can read text files and images.
+Share files in Slack and the agent can access them:
 
-## Hybrid mode
+```
+@yourbot analyze this spreadsheet
+[attached: data.csv]
+```
 
-Slack and email work together:
+### Channel awareness
 
-- Email `yourbot@tinyfat.com` — Agent responds via email
-- Mention `@yourbot` in Slack — Agent responds in Slack
-- Same agent, same memory, different interfaces
+The agent knows which channel it's in and can adjust behavior accordingly.
 
-<Aside type="tip">
-  Use email for async tasks, Slack for quick questions. Your agent's memory persists across both.
-</Aside>
+## Commands
 
-## When to use Slack
+Same commands work in Slack:
 
-- ✅ Real-time conversation
-- ✅ Team visibility (others can see agent responses)
-- ✅ Quick back-and-forth
-- ✅ Sharing context from Slack channels
+| Command | Effect |
+|---------|--------|
+| `/clear` | Start fresh session |
+| `/resume` | List recent sessions |
+| `/model haiku` | Switch models |
+
+Just @mention the bot with the command.
 
 ## Limitations
 
-- Requires Slack workspace admin access
-- More setup than email
-- Bot must be invited to each channel
+### Rate limits
+
+Slack has API rate limits. If your agent sends too many messages quickly, it may be throttled.
+
+### No background execution
+
+The agent only responds when mentioned. It doesn't monitor channels passively.
+
+### Single workspace
+
+Currently, each agent can only be connected to one Slack workspace.
+
+## Security
+
+### Private by default
+
+The agent only sees messages where it's @mentioned or in DMs. It doesn't have access to all workspace messages.
+
+### Token storage
+
+Your Slack bot token is encrypted at rest, same as your API keys.
+
+## Troubleshooting
+
+### Bot not responding
+
+1. Check the bot is in the channel (`/invite @yourbot`)
+2. Verify event subscriptions are configured
+3. Check dashboard for errors
+
+### Duplicate messages
+
+This can happen if event delivery retries. The agent should deduplicate, but if it persists, check webhook configuration.
 
 ## Next steps
 
-- [Web App Interface](/interfaces/web-app/) — Dashboard chat
-- [Email Interface](/interfaces/email/) — The default option
+- [Web App](/interfaces/web-app/) — Dashboard chat interface
+- [Email](/interfaces/email/) — Async email interface

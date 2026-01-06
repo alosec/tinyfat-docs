@@ -12,11 +12,11 @@ Your agent supports multiple interfaces. Same agent, same memory — different w
     [Learn more →](/interfaces/email/)
   </Card>
   <Card title="Slack" icon="discord">
-    Real-time chat in your Slack workspace. @mention to wake your agent.
+    Real-time chat in your Slack workspace. @mention to wake your agent. Requires Tiny tier.
     [Learn more →](/interfaces/slack/)
   </Card>
   <Card title="Web App" icon="laptop">
-    Dashboard chat with streaming responses and activity drawer.
+    Dashboard with job history and settings. Live chat coming soon.
     [Learn more →](/interfaces/web-app/)
   </Card>
 </CardGrid>
@@ -25,17 +25,51 @@ Your agent supports multiple interfaces. Same agent, same memory — different w
 
 | Feature | Email | Slack | Web App |
 |---------|-------|-------|---------|
-| Setup | None | Slack app | None |
-| Response | 30-60s cold | Real-time | Streaming |
-| Mobile | Native | Slack app | Browser |
-| Team access | Forward emails | Channel visibility | Just you |
-| File browser | No | No | Yes |
-| Activity drawer | No | No | Yes |
+| Setup | None | Tiny tier + Slack app | None |
+| Response | 10-30s | Real-time streaming | Coming soon |
+| Mobile | Native email | Slack app | Browser |
+| Threading | Email threads | Slack threads | — |
+| Attachments | ✓ | ✓ | Planned |
+| Commands | ✓ | ✓ | Planned |
+| Cost tracking | Footer | Footer | Dashboard |
 
-## Which to use?
+## Shared state
 
-- **Email** — Fire and forget. Async tasks. Mobile-first.
-- **Slack** — Team visibility. Real-time. Quick questions.
-- **Web App** — Active development. Debugging. File editing.
+All interfaces share the same:
 
-All three share the same agent memory. Switch between them freely.
+- **Storage** — `/data` directory in R2
+- **Memory** — `MEMORY.md` file
+- **Sessions** — Conversation history
+
+Start a conversation via email, continue in Slack — the context carries over.
+
+## Commands work everywhere
+
+| Command | Effect |
+|---------|--------|
+| `/clear` | Start fresh session |
+| `/resume` | List recent sessions |
+| `/resume abc1` | Resume specific session |
+| `/compact` | Compress context |
+| `/model haiku` | Switch to Haiku |
+| `/model sonnet` | Switch to Sonnet |
+| `/model opus` | Switch to Opus |
+
+## Choosing an interface
+
+**Use email when:**
+- You want async communication
+- You're on mobile without Slack
+- You need email threading/archival
+- You're on the free tier
+
+**Use Slack when:**
+- You want real-time back-and-forth
+- You're already in Slack for work
+- You need team visibility
+- You're on the Tiny tier
+
+**Use web app when:**
+- You want to see job history
+- You need to update settings
+- You want to browse files (coming soon)

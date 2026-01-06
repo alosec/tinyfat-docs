@@ -10,182 +10,208 @@ Your agent's persistent storage is mounted at `/data`. This reference documents 
 ```
 /data
 ├── MEMORY.md              # Agent's persistent memory
-├── context.jsonl          # Conversation history
-├── CEMAIL/               # Email channel simulation
-│   └── messages/         # Stored email messages
+├── config.json            # Agent preferences (model, etc.)
+├── sessions/
+│   └── {id}.jsonl         # Conversation history files
 ├── outbox/
-│   ├── email/            # Pending outgoing emails
-│   ├── sent/             # Successfully sent emails
-│   └── failed/           # Failed email attempts
-└── skills/
-    ├── pi-skills/        # Core pi-mono skills
-    └── tiny-skills/      # TinyFat platform skills
+│   ├── email/             # Pending outgoing emails
+│   ├── sent/              # Successfully sent emails
+│   └── failed/            # Failed email attempts
+└── events/
+    └── {timestamp}.jsonl  # Run events for dashboard
 ```
 
 ## Core files
 
 ### MEMORY.md
 
-Your agent's persistent memory bank. Read on every session start.
+Your agent's persistent memory bank. Read at the start of every turn.
 
-**Location:** `/data/MEMORY.md`
+**Default contents:**
+```markdown
+# Agent Memory
 
-**Format:** Markdown
+## Identity
+- Name: {agent_name}
+- Email: {agent_email}
+- Owner: {owner_email}
 
-**Sections:**
-- Identity — Who the agent is
-- Communication — Outbox pattern instructions
-- Skills — What's installed
-- Working Notes — Session logs and context
+## Outbox Instructions
+To send an email, write a JSON file to /data/outbox/email/:
+...
 
-### context.jsonl
-
-Conversation history in JSON Lines format.
-
-**Location:** `/data/context.jsonl`
-
-**Format:** JSONL (one JSON object per line)
-
-**Content:** Messages, tool calls, tool results
-
-**Note:** Managed automatically by pi-mono. Manual editing not recommended.
-
-## Outbox directories
-
-### /data/outbox/email/
-
-Drop pending emails here as JSON files.
-
-**Watched by:** Router outbox watcher
-
-**Processing:** Files with `"status": "pending"` are sent
-
-**After send:** Moved to `sent/` or `failed/`
-
-### /data/outbox/sent/
-
-Successfully sent emails.
-
-**Retention:** Kept indefinitely
-
-**Status field:** Changed to `"sent"`
-
-### /data/outbox/failed/
-
-Emails that failed to send.
-
-**Error field:** Added with failure reason
-
-**Status field:** Changed to `"failed"`
-
-## Email channel
-
-### /data/CEMAIL/
-
-Simulated Slack channel for email mode.
-
-**Purpose:** Stores incoming emails in Slack-compatible format
-
-**Used by:** pi-mono's Slack adapter in email mode
-
-## Skills
-
-### /data/skills/pi-skills/
-
-Core skills from pi-mono maintainer.
-
-**Source:** [github.com/badlogic/pi-skills](https://github.com/badlogic/pi-skills)
-
-**Contents:**
-- Browser automation
-- Google CLIs
-- Brave search
-- Beads issue tracking
-
-### /data/skills/tiny-skills/
-
-TinyFat platform skills.
-
-**Source:** [github.com/alosec/tiny-skills](https://github.com/alosec/tiny-skills)
-
-**Contents:**
-- Firecrawl web scraping
-- Linear integration
-- Notion integration
-- Slack API
-
-## User directories
-
-You can create any directories under `/data`. Common patterns:
-
-```
-/data/projects/          # Project files
-/data/references/        # Documentation
-/data/scripts/           # Automation scripts
-/data/archive/           # Old files
+## Notes
+[Your custom notes and instructions]
 ```
 
-## System directories
+**Best practices:**
+- Keep it focused — it's read every turn
+- Use for persistent preferences and context
+- Don't store large data here
 
-These exist but are ephemeral (don't persist):
+### config.json
 
-| Path | Purpose | Persists |
-|------|---------|----------|
-| `/app` | Application code | ❌ |
-| `/tmp` | Temporary files | ❌ |
-| `/home` | Home directory | ❌ |
-| `/data` | Agent storage | ✅ |
+Agent configuration and preferences:
 
-## File permissions
+```json
+{
+  "model": "haiku"
+}
+```
 
-All files in `/data` are owned by the agent process:
-- Read/write access to everything in `/data`
-- Execute permission for scripts
-- No sudo/root access needed
+**Fields:**
+- `model` — Claude model to use (`haiku`, `sonnet`, `opus`)
+
+Changed via `/model` email command.
+
+## Sessions directory
+
+`/data/sessions/` contains conversation history files.
+
+### Session file format
+
+JSONL (JSON Lines) format, one entry per line:
+
+```jsonl
+{"role":"user","content":"Hello!","timestamp":"2026-01-04T12:00:00Z"}
+{"role":"assistant","content":"Hi! How can I help?","timestamp":"2026-01-04T12:00:05Z"}
+```
+
+### Session ID and hash
+
+Each session has:
+- **ID** — Full UUID (e.g., `a1b2c3d4-e5f6-7890-abcd-ef1234567890`)
+- **Hash** — First 4 characters (e.g., `a1b2`)
+
+Use the hash with `/resume a1b2` to continue a session.
+
+### Listing sessions
+
+Send `/resume` (no argument) to get a list of recent sessions:
+
+```
+**Recent Sessions**
+
+• `a1b2` (Jan 4, 2026 12:00 PM) - Hello! How can I help...
+• `c3d4` (Jan 3, 2026 3:30 PM) - Can you analyze this...
+
+Reply with `/resume <hash>` to continue a session.
+```
+
+## Outbox directory
+
+`/data/outbox/` is where your agent writes outgoing emails.
+
+### email/
+
+Pending emails waiting to be sent. Agent writes JSON files here:
+
+```json
+{
+  "to": ["recipient@example.com"],
+  "cc": ["cc@example.com"],
+  "subject": "Email subject",
+  "body": "Email body text",
+  "in_reply_to": "<message-id@example.com>",
+  "references": "<msg1@example.com>",
+  "attachments": [
+    {
+      "filename": "report.pdf",
+      "content": "base64-encoded-content"
+    }
+  ],
+  "status": "pending"
+}
+```
+
+### sent/
+
+Successfully sent emails are moved here with metadata:
+
+```json
+{
+  ...original fields...,
+  "status": "sent",
+  "sent_at": "2026-01-04T12:00:00Z",
+  "resend_id": "abc123"
+}
+```
+
+### failed/
+
+Emails that couldn't be sent after retries:
+
+```json
+{
+  ...original fields...,
+  "status": "failed",
+  "error": "Error message",
+  "failed_at": "2026-01-04T12:00:00Z"
+}
+```
+
+## Events directory
+
+`/data/events/` stores real-time events from agent runs. Used by the dashboard for live updates.
+
+### Event file format
+
+JSONL files named by timestamp:
+
+```jsonl
+{"type":"start","timestamp":"2026-01-04T12:00:00Z","runId":"..."}
+{"type":"tool_call","name":"bash","args":{"command":"ls"},"timestamp":"..."}
+{"type":"tool_result","output":"file1.txt\nfile2.txt","timestamp":"..."}
+{"type":"text","content":"Here are the files...","timestamp":"..."}
+{"type":"end","usage":{"input":100,"output":50},"timestamp":"..."}
+```
+
+## Container directories
+
+Besides `/data`, the container has:
+
+| Path | Purpose |
+|------|---------|
+| `/inbox` | Input from platform (input.json, attachments) |
+| `/outbox` | Container-level outbox (deprecated, use /data/outbox) |
+| `/opt/skills` | Pre-installed skill documentation |
+| `/workspace` | Additional working directory |
+
+## Pre-installed tools
+
+Available in the container:
+
+| Tool | Command | Notes |
+|------|---------|-------|
+| Git | `git` | Version control |
+| HTTP | `curl`, `wget` | Network requests |
+| JSON | `jq` | JSON processing |
+| YAML | `yq` | YAML processing |
+| Search | `rg` (ripgrep) | Fast text search |
+| Find | `fdfind` | Fast file finding |
+| Tree | `tree` | Directory visualization |
+| SQLite | `sqlite3` | Database |
+| PostgreSQL | `psql` | Database client |
+| Python | `python3`, `uv` | Python + package manager |
+| Node | `node`, `npm` | JavaScript runtime |
+| GitHub | `gh` | GitHub CLI |
 
 ## Storage limits
 
-- **Volume size:** 1GB
-- **No per-file limits** (within volume size)
-- **No inode limits** (practical use)
+Currently unlimited during launch. Future limits:
 
-## Best practices
+- **Free tier:** TBD
+- **Tiny tier:** TBD
 
-### Organize by purpose
+Outbox files are automatically cleaned up after processing.
 
-```
-/data
-├── MEMORY.md
-├── projects/
-│   ├── website/
-│   └── api/
-├── references/
-│   └── api-docs.md
-└── scripts/
-    └── setup.sh
-```
+## Data access
 
-### Use setup.sh for repeatable installs
+### Via email
+Ask your agent: "Show me the contents of /data/MEMORY.md"
 
-```bash
-#!/bin/sh
-# /data/setup.sh - Run on boot for tools
+### Via dashboard
+File browser coming soon.
 
-# Install project dependencies
-pip install requests beautifulsoup4
-
-# Set up aliases
-echo "alias ll='ls -la'" >> ~/.bashrc
-```
-
-### Archive old content
-
-Don't delete — move to archive:
-
-```
-/data/archive/
-├── 2024-11/
-│   └── old-project/
-└── 2024-12/
-    └── notes.md
-```
+### Via export
+Contact support for R2 data export.

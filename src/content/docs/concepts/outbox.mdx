@@ -4,7 +4,7 @@ description: How your agent sends email through the filesystem.
 ---
 import { Aside, Code } from '@astrojs/starlight/components';
 
-Your agent doesn't send email directly. Instead, it writes files to an outbox directory, and the platform picks them up and sends them.
+Your agent doesn't send emails directly. Instead, it writes files to an outbox directory, and the platform picks them up and sends them.
 
 ## Why an outbox?
 
@@ -20,29 +20,42 @@ Every outgoing email is a file you can inspect. Nothing hidden.
 
 The agent doesn't need email credentials or API access. Just write a file.
 
+### Isolation
+
+The agent can't access email APIs directly — it can only write files. This limits the blast radius of bugs.
+
 ## How it works
 
 ```
 Agent writes JSON → /data/outbox/email/
                         ↓
-           Router polls outbox directory
-                        ↓
-           Picks up pending files
+           Queue worker reads outbox files
                         ↓
            Sends via Resend API
                         ↓
-           Moves to /data/outbox/sent/ or /data/outbox/failed/
+           Moves file to sent/ or failed/
 ```
 
-## Email JSON format
+## Directory structure
 
-To send an email, your agent creates a file like this:
+```
+/data/outbox/
+├── email/          # Pending - agent writes here
+├── sent/           # Successfully sent
+└── failed/         # Failed to send (after retries)
+```
+
+## File format
+
+Agent writes JSON files to `/data/outbox/email/`:
 
 ```json
 {
   "to": ["recipient@example.com"],
-  "subject": "Hello from your agent",
-  "body": "This is the email body.\n\nIt supports multiple paragraphs.",
+  "subject": "Re: Your question",
+  "body": "Here's what I found...",
+  "in_reply_to": "<original-message-id@example.com>",
+  "references": "<msg1@example.com> <msg2@example.com>",
   "status": "pending"
 }
 ```
@@ -51,116 +64,131 @@ To send an email, your agent creates a file like this:
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `to` | string[] | Array of recipient emails |
-| `subject` | string | Email subject line |
-| `body` | string | Plain text email body |
-| `status` | string | Must be `"pending"` |
+| `to` | `string[]` | Recipient email addresses |
+| `subject` | `string` | Email subject line |
+| `body` | `string` | Plain text email body |
+| `status` | `string` | Always `"pending"` when written |
 
 ### Optional fields
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `in_reply_to` | string | Message-ID for threading |
-| `references` | string | Email thread chain |
-| `cc` | string[] | CC recipients |
-| `bcc` | string[] | BCC recipients |
+| `cc` | `string[]` | CC recipients |
+| `in_reply_to` | `string` | Message-ID of email being replied to |
+| `references` | `string` | Space-separated Message-IDs for threading |
+| `attachments` | `array` | File attachments (see below) |
 
 ## Threading
 
-To reply to an email and maintain threading:
+For proper email threading, include:
 
 ```json
 {
-  "to": ["original-sender@example.com"],
-  "subject": "Re: Original Subject",
-  "body": "Your reply here...",
-  "in_reply_to": "<original-message-id@mail.example.com>",
-  "status": "pending"
+  "in_reply_to": "<CAG+abc123@mail.gmail.com>",
+  "references": "<CAG+first@mail.gmail.com> <CAG+abc123@mail.gmail.com>"
 }
 ```
 
-The `in_reply_to` field should contain the Message-ID from the original email's headers.
+- `in_reply_to`: The Message-ID of the email you're replying to
+- `references`: Chain of Message-IDs in the thread
+
+The platform passes these headers to Resend, which sets them correctly in the outgoing email.
+
+## Attachments
+
+Include files as base64-encoded attachments:
+
+```json
+{
+  "to": ["recipient@example.com"],
+  "subject": "Report attached",
+  "body": "Please find the report attached.",
+  "attachments": [
+    {
+      "filename": "report.pdf",
+      "content": "JVBERi0xLjQK..."
+    }
+  ]
+}
+```
+
+The agent typically generates files in `/data/` first, then base64-encodes them for the outbox.
 
 ## File naming
 
-Name your files with a timestamp prefix to ensure ordering:
+Files in `/data/outbox/email/` should have unique names. Common patterns:
 
-```
-1703808000-response.json
-1703808001-followup.json
-```
+- `{timestamp}.json` — e.g., `1704379200000.json`
+- `{uuid}.json` — e.g., `a1b2c3d4-e5f6-7890-abcd-ef1234567890.json`
 
-Or use any unique name — the platform processes all `*.json` files with `"status": "pending"`.
+The agent typically uses timestamps.
 
-## Outbox directories
+## Processing
 
-| Directory | Purpose |
-|-----------|---------|
-| `/data/outbox/email/` | Drop pending emails here |
-| `/data/outbox/sent/` | Successfully sent (moved here) |
-| `/data/outbox/failed/` | Failed to send (moved here) |
+After the agent exits, the queue worker:
 
-<Aside type="tip">
-  Check `/data/outbox/failed/` if an email didn't arrive. The error will be in the file.
+1. Lists files in `/data/outbox/email/`
+2. Reads each JSON file
+3. Adds session footer to body
+4. Sends via Resend
+5. Moves to `sent/` or `failed/`
+
+<Aside type="note">
+  Files are processed in order of creation time. If multiple files exist, they're sent sequentially.
 </Aside>
 
-## Example: Agent sends a reply
+## Sent and failed directories
 
-When you email your agent, it receives the message with metadata including the Message-ID. To reply:
+### sent/
 
-```bash
-cat > /data/outbox/email/$(date +%s)-reply.json << 'EOF'
-{
-  "to": ["you@example.com"],
-  "subject": "Re: Your question",
-  "body": "Here's my answer to your question.\n\nLet me know if you need anything else.",
-  "in_reply_to": "<CAB123abc@mail.gmail.com>",
-  "status": "pending"
-}
-EOF
-```
-
-The platform picks this up and sends via Resend within seconds.
-
-## Watching the outbox
-
-The Router polls the outbox directory regularly:
-- Checks for new files
-- Validates JSON structure
-- Sends via Resend API
-- Moves file to `sent/` or `failed/`
-
-Poll interval is approximately 5 seconds.
-
-## Common issues
-
-### Email not sending
-
-1. Check the file is valid JSON
-2. Ensure `status` is `"pending"`
-3. Verify `to` is an array, not a string
-4. Look in `/data/outbox/failed/` for errors
-
-### Wrong recipient
-
-The `to` field must be an array:
+Successfully sent emails are moved here with metadata added:
 
 ```json
-// ❌ Wrong
-"to": "user@example.com"
-
-// ✅ Correct
-"to": ["user@example.com"]
+{
+  "to": ["recipient@example.com"],
+  "subject": "Re: Question",
+  "body": "...",
+  "status": "sent",
+  "sent_at": "2026-01-04T12:00:00Z",
+  "resend_id": "abc123"
+}
 ```
 
-### Missing email
+### failed/
 
-If an email seems lost:
-1. Check `/data/outbox/sent/` — it may have sent
-2. Check `/data/outbox/failed/` — it may have failed
-3. Check spam folder on recipient's end
+Emails that failed after retries:
+
+```json
+{
+  "to": ["recipient@example.com"],
+  "subject": "Re: Question",
+  "body": "...",
+  "status": "failed",
+  "error": "Invalid recipient address",
+  "failed_at": "2026-01-04T12:00:00Z"
+}
+```
+
+## Session footer
+
+The platform automatically appends a session footer to every outgoing email:
+
+```
+---
+[buddy:a1b2 | ↑38 ↓5.0k R663k W37k $0.687 18.7%/200k | claude-haiku-4-5]
+```
+
+This is added during processing — the agent doesn't need to include it.
+
+## Manual inspection
+
+You can view outbox contents:
+
+1. Ask your agent: "What files are in /data/outbox/"
+2. Check the dashboard file browser (coming soon)
+3. Export your R2 data
 
 ## Next steps
 
-- [Memory & persistence](/concepts/memory/) — How your agent remembers
-- [Architecture](/concepts/architecture/) — Full system overview
+- [Email JSON Reference](/reference/email-json/) — Complete field reference
+- [Architecture](/concepts/architecture/) — How the platform works

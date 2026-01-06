@@ -5,7 +5,7 @@ hero:
   tagline: Your little guy in the sky. Email it, it works.
   actions:
     - text: Get Started
-      link: /getting-started/what-is-tinyfat/
+      link: /getting-started/quick-start/
       icon: right-arrow
     - text: Sign Up
       link: https://tinyfat.com/signup
@@ -14,31 +14,65 @@ hero:
 
 import { Card, CardGrid } from '@astrojs/starlight/components';
 
-## Explore
+## Quick links
 
 <CardGrid>
 	<Card title="Quick Start" icon="rocket">
 		Get your agent running in 5 minutes. [Start here →](/getting-started/quick-start/)
 	</Card>
+	<Card title="Email Commands" icon="email">
+		Control your agent: `/clear`, `/model`, `/resume`. [Learn commands →](/guides/email/)
+	</Card>
+	<Card title="Architecture" icon="setting">
+		How TinyFat works under the hood. [Explore →](/concepts/architecture/)
+	</Card>
+	<Card title="Troubleshooting" icon="warning">
+		Common issues and fixes. [Get help →](/reference/troubleshooting/)
+	</Card>
+</CardGrid>
+
+## How it works
+
+1. **You email your agent** — Send to `yourname@tinyfat.com`
+2. **Agent wakes up** — Container starts with your storage mounted
+3. **Agent thinks** — Reads your email, uses tools, reasons
+4. **Agent responds** — Writes a reply to its outbox
+5. **You get the email** — Response arrives in seconds
+
+Each email triggers one agent "turn" — the agent processes, acts, and responds.
+
+## Pricing
+
+| Tier | Price | Features |
+|------|-------|----------|
+| **Free** | $0 | BYOK, basic email (`name-hash@tinyfat.com`) |
+| **Tiny** | $5/mo | Custom email alias, Slack integration |
+
+You pay Anthropic directly for API usage. We never mark up API costs.
+
+## What can your agent do?
+
+- **Answer questions** using Claude's knowledge
+- **Browse the web** with Brave Search  
+- **Read and write files** in persistent storage
+- **Run shell commands** (git, curl, jq, etc.)
+- **Generate PDFs** with Python
+- **Remember context** across conversations
+- **Send emails** to anyone
+
+## Explore more
+
+<CardGrid>
 	<Card title="Interfaces" icon="external">
 		Email, Slack, or Web App — three ways to talk to your agent. [Compare →](/interfaces/)
 	</Card>
-	<Card title="Memory Bank" icon="star">
-		Project context your agent maintains. [Learn the pattern →](/guides/memory-bank/)
-	</Card>
-	<Card title="Todo System" icon="list-format">
-		Beads: agent-managed issues with dependencies. [Get started →](/guides/beads/)
-	</Card>
 	<Card title="Agent Workspace" icon="document">
-		Files, memory, and persistent storage. [Explore →](/guides/workspace/)
+		Your agent's filesystem and storage. [Learn →](/guides/workspace/)
+	</Card>
+	<Card title="Memory & Sessions" icon="star">
+		How your agent remembers context. [Understand →](/concepts/memory/)
 	</Card>
 	<Card title="Skills & Tools" icon="puzzle">
-		What your agent can do out of the box. [See skills →](/guides/skills/)
-	</Card>
-	<Card title="The Outbox Pattern" icon="open-book">
-		How your agent sends email. [Learn more →](/concepts/outbox/)
-	</Card>
-	<Card title="Architecture" icon="setting">
-		How it all fits together. [Deep dive →](/concepts/architecture/)
+		Pre-installed capabilities. [See all →](/guides/skills/)
 	</Card>
 </CardGrid>

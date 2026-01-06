@@ -31,8 +31,15 @@
 
 /* Constrain "On this page" right sidebar width */
 @media (min-width: 72rem) {
+	/* Force fixed width for right sidebar container - independent of left sidebar */
 	.right-sidebar-container {
-		max-width: 16rem;
+		width: 16rem !important;
+		max-width: 16rem !important;
+	}
+
+	/* Fix right sidebar inner element to full width of container */
+	.right-sidebar {
+		width: 16rem !important;
 	}
 
 	/* Fix right sidebar content to consistent width regardless of left sidebar state */
@@ -54,10 +61,6 @@
 	body.sidebar-collapsed .main-pane {
 		width: calc(100% - 16rem);
 		margin-inline-start: 0;
-	}
-
-	body.sidebar-collapsed .right-sidebar-container {
-		width: 16rem;
 	}
 
 	/* Right sidebar toggle button */

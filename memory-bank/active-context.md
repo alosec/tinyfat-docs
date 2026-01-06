@@ -1,35 +1,25 @@
-# Active Context
+# Active Context - TinyFat Docs
 
 ## Current State
+- Collapsible sidebars implemented for both left and right
+- Both toggles work independently with localStorage persistence
+- Content left-margin properly hugs left sidebar regardless of right sidebar state
+- Right sidebar position/width independent of left sidebar state
 
-Documentation site is **complete and deployed**. All initial content written and published.
+## Open Issue
+**tf-docs-50n**: Sidebar toggle overlap on tablet/half-screen
+- At narrower widths, left sidebar toggle overlaps mobile "On this page" header
+- Attempted fix (72rem breakpoint) removed toggles entirely - reverted
+- Need clarification from Alex on exact scenario/viewport to fix properly
 
-## Recent Work (Dec 28, 2024)
+## Recent Commits
+- `c710def` Revert breakpoint change
+- `594586f` Fix content left margin to hug left sidebar
+- `f8722bd` Fix right sidebar fixed positioning
+- `cc9d260` Fix right sidebar content shifting
 
-All beads issues closed:
-- ✅ tf-docs-k37: Epic - comprehensive public docs
-- ✅ tf-docs-i18: Getting Started guide
-- ✅ tf-docs-jrz: Email guide
-- ✅ tf-docs-dyf: Agent workspace guide
-- ✅ tf-docs-1fo: Dashboard guide
-- ✅ tf-docs-n7s: Concepts - architecture overview
-- ✅ tf-docs-j9t: Memory-bank pattern docs
-- ✅ tf-docs-dyo: Beads issue tracking docs
-- ✅ tf-docs-oo0: Fix Starlight component imports
-- ✅ tf-docs-19l: Sidebar accessibility
-- ✅ tf-docs-qgu: FileTree → code blocks
-
-## What's Working
-
-- All documentation pages written
-- Starlight sidebar navigation working
-- Deployed to docs.tinyfat.com
-- Card grid on landing page functional
-
-## Next Steps
-
-No immediate work planned. Docs will evolve with platform:
-- Add new guides as features ship
-- Update architecture docs if infrastructure changes
-- Add API reference if public API exposed
-- Screenshot updates as UI evolves
+## Tech Notes
+- Left sidebar toggle: appears at 50rem (CSS), JS checks 1152px
+- Right sidebar/desktop TOC: appears at 72rem
+- Mobile TOC bar: visible between 50-72rem range
+- Mismatch between CSS breakpoints may be the root cause

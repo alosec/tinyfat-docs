@@ -31,15 +31,16 @@
 
 /* Constrain "On this page" right sidebar width */
 @media (min-width: 72rem) {
-	/* Force fixed width for right sidebar container - independent of left sidebar */
+	/* Force fixed width for right sidebar - independent of left sidebar */
 	.right-sidebar-container {
 		width: 16rem !important;
 		max-width: 16rem !important;
 	}
 
-	/* Fix right sidebar inner element to full width of container */
+	/* Fix right sidebar (position:fixed) to fixed width, not 100% of container */
 	.right-sidebar {
 		width: 16rem !important;
+		right: 0 !important;
 	}
 
 	/* Fix right sidebar content to consistent width regardless of left sidebar state */

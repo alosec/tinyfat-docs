@@ -10,7 +10,7 @@ The dashboard at [tinyfat.com/dashboard](https://tinyfat.com/dashboard) is your 
 
 The dashboard shows:
 - **Job history** — All email interactions
-- **Settings** — API keys, allowed senders
+- **Settings** — Allowed senders, API keys (optional)
 - **Usage** — Token counts and costs
 
 ## Job history
@@ -34,20 +34,6 @@ Click a job to see details:
 
 ## Settings
 
-### API Keys
-
-Configure your Anthropic API key here.
-
-<Steps>
-1. Get your key from [console.anthropic.com](https://console.anthropic.com/)
-2. Paste it in the API Keys field
-3. Click **Save**
-</Steps>
-
-<Aside type="note">
-  Your API key is encrypted before storage. We never see it in plain text.
-</Aside>
-
 ### Allowed Senders
 
 Control who can email your agent:
@@ -61,6 +47,24 @@ Your signup email is automatically added.
   Be careful with domain wildcards. `@gmail.com` would allow any Gmail user to email your agent.
 </Aside>
 
+### API Keys (Optional)
+
+By default, your agent uses TinyFat's managed API access with your $1 free credits (or metered usage on Tiny tier).
+
+**Bring Your Own Key (BYOK):** If you prefer to use your own Anthropic API key:
+
+<Steps>
+1. Get your key from [console.anthropic.com](https://console.anthropic.com/)
+2. Paste it in the API Keys field
+3. Click **Save**
+</Steps>
+
+With BYOK, you pay Anthropic directly at their rates.
+
+<Aside type="note">
+  Your API key is encrypted before storage. We never see it in plain text.
+</Aside>
+
 ### Integrations (Tiny tier)
 
 Connect external services:
@@ -71,7 +75,8 @@ Connect external services:
 
 See your agent's resource usage:
 
-- **This month** — Total tokens and cost
+- **Credits remaining** — Free tier balance
+- **This month** — Total tokens and cost (Tiny tier)
 - **Per job** — Breakdown in job history
 - **Model** — Which model each job used
 
@@ -81,7 +86,7 @@ View your agent's details:
 
 - **Email address** — Where to send messages
 - **Created** — When the agent was provisioned
-- **Plan** — Free or Tiny tier
+- **Plan** — Free, Tiny, or BYOK
 
 ## Common tasks
 
@@ -93,17 +98,9 @@ View your agent's details:
 4. Check the error message
 
 Common errors:
-- "Invalid API key" — Re-enter your Anthropic key
+- "Out of credits" — Upgrade to Tiny or add BYOK
 - "Sender not allowed" — Add sender to allowed list
 - "Timeout" — Request took too long, try simpler task
-
-### Change your API key
-
-1. Go to Settings → API Keys
-2. Enter new key
-3. Click Save
-
-Old key is immediately replaced.
 
 ### Add allowed senders
 

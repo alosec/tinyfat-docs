@@ -1,6 +1,6 @@
 ---
 title: Quick Start
-description: Get your TinyFat agent running in 5 minutes.
+description: Get your TinyFat agent running in 2 minutes.
 ---
 import { Steps, Aside, Code } from '@astrojs/starlight/components';
 
@@ -9,15 +9,10 @@ This guide walks you through creating your first TinyFat agent.
 ## Prerequisites
 
 - An email address
-- An [Anthropic API key](https://console.anthropic.com/) (Claude)
 
-<Aside type="tip">
-  Don't have an Anthropic key yet? Sign up at [console.anthropic.com](https://console.anthropic.com/). New accounts get free credits.
-</Aside>
+That's it. No API keys required — we provide $1 of free usage to get started.
 
 ## Create your agent
-
-Follow these steps to get started:
 
 <Steps>
 
@@ -31,22 +26,12 @@ Follow these steps to get started:
 
 3. **Choose your agent name**
    
-   Pick a name for your agent. This becomes part of its email address.
-   
-   - **Free tier:** `{name}-{hash}@tinyfat.com` (e.g., `buddy-a1b2c3d4@tinyfat.com`)
-   - **Tiny tier ($5/mo):** Custom alias like `buddy@tinyfat.com`
+   Pick a name for your agent. This becomes part of its email address:
+   `{name}-{hash}@tinyfat.com` (e.g., `buddy-a1b2c3d4@tinyfat.com`)
 
-4. **Add your Anthropic API key**
+4. **You're ready!**
    
-   Paste your API key. It's encrypted and stored securely.
-   
-   <Aside type="note">
-     We never see your key in plain text. It's encrypted before storage and only decrypted inside your agent's container.
-   </Aside>
-
-5. **You're ready!**
-   
-   Your agent is now live and waiting for email.
+   Your agent is live with $1 of free credits. Start emailing!
 
 </Steps>
 
@@ -68,18 +53,45 @@ You'll get a response in 10-30 seconds.
 4. Your agent read your message, thought about it, and wrote a response
 5. TinyFat sent the response back to you
 
+## Free tier
+
+You get **$1 of API credits** free — enough for dozens of conversations with Haiku (the default model).
+
+When your credits run out, you can:
+
+1. **Upgrade to Tiny ($5/month)** — Includes metered API usage at cost
+2. **Bring your own key (BYOK)** — Use your Anthropic API key directly
+
+## Pricing
+
+| Tier | Price | What you get |
+|------|-------|--------------|
+| **Free** | $0 | $1 credits, basic email (`name-hash@tinyfat.com`) |
+| **Tiny** | $5/mo | Custom email alias, Slack integration, metered API at cost |
+| **BYOK** | $0 | Use your own Anthropic key, pay Anthropic directly |
+
+<Aside type="tip">
+  The free $1 goes a long way with Haiku (~$0.001 per message). Try it out before deciding on a plan.
+</Aside>
+
 ## Next steps
 
 - [Your First Email](/getting-started/first-email/) — Detailed walkthrough
 - [Email Commands](/guides/email/) — Control your agent with `/clear`, `/model`, etc.
 - [Agent Workspace](/guides/workspace/) — Understand your agent's filesystem
 
-## Upgrading to Tiny tier
+## Upgrading
 
-The free tier is great for trying things out. Upgrade to Tiny ($5/month) for:
+When you're ready for more:
 
-- **Custom email alias** — `yourname@tinyfat.com` instead of `yourname-abc123@tinyfat.com`
-- **Slack integration** — Real-time chat in your workspace
-- **Priority support** — Faster response to questions
+**Tiny tier ($5/month):**
+- Custom email alias — `yourname@tinyfat.com`
+- Slack integration — Real-time chat in your workspace
+- Metered API usage — Pay only for what you use, at cost
+
+**BYOK (Bring Your Own Key):**
+- Use your Anthropic API key
+- No markup — pay Anthropic directly
+- Available on any tier
 
 Upgrade in the dashboard under Settings → Billing.

@@ -75,25 +75,44 @@ export default defineConfig({
 					tag: 'script',
 					content: `
 						(function() {
-							if (window.innerWidth < 800) return;
+							if (window.innerWidth < 1152) return;
 							
 							function init() {
-								if (document.querySelector('.sidebar-toggle')) return;
+								// Left sidebar toggle
+								if (!document.querySelector('.sidebar-toggle')) {
+									const toggle = document.createElement('button');
+									toggle.className = 'sidebar-toggle';
+									toggle.setAttribute('aria-label', 'Toggle left sidebar');
+									toggle.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>';
+									
+									document.body.appendChild(toggle);
+									
+									const collapsed = localStorage.getItem('sidebar-collapsed') === 'true';
+									if (collapsed) document.body.classList.add('sidebar-collapsed');
+									
+									toggle.addEventListener('click', function() {
+										document.body.classList.toggle('sidebar-collapsed');
+										localStorage.setItem('sidebar-collapsed', document.body.classList.contains('sidebar-collapsed'));
+									});
+								}
 								
-								const toggle = document.createElement('button');
-								toggle.className = 'sidebar-toggle';
-								toggle.setAttribute('aria-label', 'Toggle sidebar');
-								toggle.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>';
-								
-								document.body.appendChild(toggle);
-								
-								const collapsed = localStorage.getItem('sidebar-collapsed') === 'true';
-								if (collapsed) document.body.classList.add('sidebar-collapsed');
-								
-								toggle.addEventListener('click', function() {
-									document.body.classList.toggle('sidebar-collapsed');
-									localStorage.setItem('sidebar-collapsed', document.body.classList.contains('sidebar-collapsed'));
-								});
+								// Right sidebar toggle
+								if (!document.querySelector('.right-sidebar-toggle')) {
+									const rightToggle = document.createElement('button');
+									rightToggle.className = 'right-sidebar-toggle';
+									rightToggle.setAttribute('aria-label', 'Toggle table of contents');
+									rightToggle.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>';
+									
+									document.body.appendChild(rightToggle);
+									
+									const rightCollapsed = localStorage.getItem('right-sidebar-collapsed') === 'true';
+									if (rightCollapsed) document.body.classList.add('right-sidebar-collapsed');
+									
+									rightToggle.addEventListener('click', function() {
+										document.body.classList.toggle('right-sidebar-collapsed');
+										localStorage.setItem('right-sidebar-collapsed', document.body.classList.contains('right-sidebar-collapsed'));
+									});
+								}
 							}
 							
 							if (document.readyState === 'loading') {

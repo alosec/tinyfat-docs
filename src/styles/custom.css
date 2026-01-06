@@ -35,6 +35,11 @@
 		max-width: 16rem;
 	}
 
+	/* Add padding to "On this page" heading to avoid toggle overlap */
+	.right-sidebar-panel h2 {
+		padding-inline-start: 1.5rem;
+	}
+
 	/* When left sidebar is collapsed - expand content area */
 	body.sidebar-collapsed {
 		--sl-content-width: 60rem;

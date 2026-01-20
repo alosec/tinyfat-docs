@@ -46,17 +46,17 @@ Project-specific context. Lives at `project/memory-bank/`:
 
 ```
 memory-bank/
-├── 00-core/                # Identity, constraints, tech stack
-│   ├── CORE.md             # READ THIS FIRST — architecture constraints
-│   ├── README.md           # Project overview
-│   └── techStack.md        # Technologies used
-├── 01-architecture/        # System design
-│   ├── architecture.md     # Full system overview
-│   └── decisions.md        # Architectural decision records (ADRs)
-├── 02-active/              # Current state (CHECK FIRST)
-│   ├── activeWork.md       # What's happening NOW
+├── 00-core/                # Identity, constraints
+│   ├── projectBrief.md     # What we're building
+│   ├── productContext.md   # Why it exists, mental model
+│   └── README.md           # Project overview
+├── 01-active/              # Current state (CHECK FIRST)
+│   ├── currentWork.md      # What's happening NOW
 │   ├── blockers.md         # What's stuck
 │   └── nextUp.md           # Prioritized next actions
+├── 02-architecture/        # System design
+│   ├── architecture.md     # Full system overview
+│   └── decisions.md        # Architectural decision records (ADRs)
 ├── 03-patterns/            # Reusable approaches
 ├── 04-business/            # Product & positioning
 ├── 05-sessions/            # Session logs (dated)
@@ -75,29 +75,29 @@ Directories are numbered for reading order and priority:
 | Prefix | Purpose | Read when... |
 |--------|---------|--------------|
 | `00-` | Core identity & constraints | Starting any work |
-| `01-` | Architecture | Touching system design |
-| `02-` | Active state | Every session start |
+| `01-` | Active state | Every session start |
+| `02-` | Architecture | Touching system design |
 | `03-` | Patterns | Implementing something similar |
 | `04+` | Reference material | As needed |
 
 ## Key files
 
-### 00-core/CORE.md
+### 00-core/projectBrief.md
 
-The most important file. Contains non-negotiable constraints:
-- Architecture decisions that can't be reversed
-- Security boundaries
-- Integration patterns
+The most important file. Contains project identity:
+- What we're building (elevator pitch)
+- Why it exists (problem it solves)
+- Tech stack overview
 
 <Aside type="caution">
-  Always read CORE.md before proposing architectural changes. It exists to prevent breaking things.
+  Always read projectBrief.md before proposing architectural changes. It establishes the project's identity.
 </Aside>
 
-### 02-active/ directory
+### 01-active/ directory
 
 Check this every session. Three files:
 
-**activeWork.md** — What's happening right now
+**currentWork.md** — What's happening right now
 - Current focus
 - Recent changes
 - Quick commands
@@ -116,32 +116,32 @@ Check this every session. Three files:
 <Steps>
 
 1. **Start a session**
-   
-   Read `02-active/` files to understand current state.
-   
+
+   Read `01-active/` files to understand current state.
+
    ```
-   Read 02-active/activeWork.md
-   Read 02-active/blockers.md
-   Read 02-active/nextUp.md
+   Read 01-active/currentWork.md
+   Read 01-active/blockers.md
+   Read 01-active/nextUp.md
    ```
 
 2. **Check constraints**
-   
-   If touching architecture, read `00-core/CORE.md`.
+
+   If touching architecture, read `00-core/projectBrief.md` and `02-architecture/`.
 
 3. **Do work**
-   
+
    Reference patterns in `03-patterns/` if implementing something similar.
 
 4. **Update state**
-   
-   Before ending, update `02-active/activeWork.md` with:
+
+   Before ending, update `01-active/currentWork.md` with:
    - What you did
    - What changed
    - Any new blockers
 
 5. **Log significant sessions**
-   
+
    Create `05-sessions/YYYY-MM-DD-topic.md` for major work.
 
 </Steps>
@@ -151,20 +151,20 @@ Check this every session. Three files:
 For a new project:
 
 ```bash
-mkdir -p memory-bank/{00-core,01-architecture,02-active,03-patterns,04-business,05-sessions,06-learnings,07-reference,08-history,09-research,10-archive}
+mkdir -p memory-bank/{00-core,01-active,02-architecture,03-patterns,04-business,05-sessions,06-learnings,07-reference,08-history,09-research,10-archive}
 ```
 
 Create the essential files:
 
 ```bash
 touch memory-bank/README.md
-touch memory-bank/00-core/{CORE.md,README.md,techStack.md}
-touch memory-bank/02-active/{activeWork.md,blockers.md,nextUp.md}
+touch memory-bank/00-core/{projectBrief.md,productContext.md,README.md}
+touch memory-bank/01-active/{currentWork.md,blockers.md,nextUp.md}
 ```
 
 ## Best practices
 
-### Keep 02-active/ current
+### Keep 01-active/ current
 
 This is the most-read directory. Stale information here wastes everyone's time.
 
@@ -189,13 +189,13 @@ Move outdated docs to `10-archive/` rather than deleting. Context is valuable.
 
 Cross-reference related docs:
 ```markdown
-See [architecture decisions](../01-architecture/decisions.md) for background.
+See [architecture decisions](../02-architecture/decisions.md) for background.
 ```
 
-## Example: activeWork.md
+## Example: currentWork.md
 
 ```markdown
-# Active Work
+# Current Work
 
 **Last Updated:** 2024-12-28 04:30 UTC
 
@@ -239,7 +239,7 @@ Your agent's `/data/MEMORY.md` is personal context. Memory banks are shared cont
 
 For projects, point your agent to the memory bank:
 ```
-Read memory-bank/02-active/ to understand current project state.
+Read memory-bank/01-active/ to understand current project state.
 ```
 
 ## Global vs Project
@@ -250,8 +250,9 @@ Read memory-bank/02-active/ to understand current project state.
 | Scope | All your work | Single project |
 | Shared | No (personal) | Yes (team) |
 | Identity | Who you are | What the project is |
-| `00-core/` | identity.md, systems.md | CORE.md, techStack.md |
-| `01-*` | active/ (current work) | architecture/ |
+| `00-core/` | identity.md, systems.md | projectBrief.md, productContext.md |
+| `01-*` | active/ (current work) | active/ (current work) |
+| `02-*` | patterns/ | architecture/ |
 | Focus | Cross-project context | Deep project context |
 
 ## Next steps
